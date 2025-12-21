@@ -57,16 +57,32 @@ async function fetchUserComments(username: string): Promise<string[]> {
   const commentedPostIds: string[] = []
 
   try {
-    // Fetch recent comments (up to 1000 to increase chances of finding user's comments)
-    const url = buildApiUrl(API_ENDPOINTS.COMMENT_LIST, { rw: 1000 })
-    const response = await fetchJSONP<ApiCommentResponse>(url)
+    // Fetch comments in batches to avoid timeout
+    // Start with recent 200 comments, then fetch more if needed
+    const batchSize = 200
+    const maxBatches = 3 // Up to 600 comments total
 
-    // Find comments by the user
-    for (const comment of response.data) {
-      if (comment.comment1 === username) {
-        if (!commentedPostIds.includes(comment.kijicode)) {
-          commentedPostIds.push(comment.kijicode)
+    for (let batch = 0; batch < maxBatches; batch++) {
+      const url = buildApiUrl(API_ENDPOINTS.COMMENT_LIST, {
+        rw: batchSize,
+        st: batch * batchSize,
+      })
+
+      // Use longer timeout for comment API (15 seconds)
+      const response = await fetchJSONP<ApiCommentResponse>(url, 15000)
+
+      // Find comments by the user
+      for (const comment of response.data) {
+        if (comment.comment1 === username) {
+          if (!commentedPostIds.includes(comment.kijicode)) {
+            commentedPostIds.push(comment.kijicode)
+          }
         }
+      }
+
+      // If we got less than batch size, we've reached the end
+      if (response.data.length < batchSize) {
+        break
       }
     }
   } catch (error) {
