@@ -18,7 +18,7 @@ export function SettingsPage() {
     clearAll: clearCommentHistory,
     refresh: refreshComments,
     isLoadingApiComments,
-  } = useCommentHistory()
+  } = useCommentHistory({ fetchApiComments: true })
   const [username, setUsername] = useState(preferences.username)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
   const [showApiComments, setShowApiComments] = useState(false)

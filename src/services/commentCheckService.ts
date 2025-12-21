@@ -260,3 +260,18 @@ export function isCacheValid(postIds: string[], username: string): boolean {
     Date.now() - cache.lastFetched < CACHE_DURATION
   )
 }
+
+/**
+ * Get cached comment results without making API calls
+ * Used by pages that only need to display comment status
+ */
+export function getCachedCommentResults(username: string): CommentResult {
+  const cache = getCache()
+  if (!cache || cache.username !== username) {
+    return { postIds: [], comments: [] }
+  }
+  return {
+    postIds: cache.commentedPostIds || [],
+    comments: cache.userComments || []
+  }
+}

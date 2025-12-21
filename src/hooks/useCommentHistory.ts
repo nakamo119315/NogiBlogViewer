@@ -14,10 +14,16 @@ import {
 import {
   checkCommentsOnPosts,
   refreshCommentCheck,
+  getCachedCommentResults,
   type UserComment,
 } from '../services/commentCheckService'
 import { fetchBlogsByMember } from '../services/blogService'
 import { useAppContext } from '../store/AppContext'
+
+interface UseCommentHistoryOptions {
+  /** Whether to fetch API comments (default: false, only Settings page should set true) */
+  fetchApiComments?: boolean
+}
 
 interface UseCommentHistoryResult {
   /** List of comment records (manual) */
@@ -44,7 +50,8 @@ interface UseCommentHistoryResult {
   isLoadingApiComments: boolean
 }
 
-export function useCommentHistory(): UseCommentHistoryResult {
+export function useCommentHistory(options: UseCommentHistoryOptions = {}): UseCommentHistoryResult {
+  const { fetchApiComments = false } = options
   const [comments, setComments] = useState<CommentRecord[]>([])
   const [manualCommentedPostIds, setManualCommentedPostIds] = useState<string[]>([])
   const [apiCommentedPostIds, setApiCommentedPostIds] = useState<string[]>([])
@@ -104,15 +111,23 @@ export function useCommentHistory(): UseCommentHistoryResult {
     }
   }, [username, favoriteMembers])
 
-  // Initial load - manual comments
+  // Initial load - manual comments and cached API comments
   useEffect(() => {
     loadManualComments()
-  }, [loadManualComments])
+    // Load cached API comments (no API calls, just from localStorage)
+    if (username) {
+      const cached = getCachedCommentResults(username)
+      setApiCommentedPostIds(cached.postIds)
+      setApiUserComments(cached.comments)
+    }
+  }, [loadManualComments, username])
 
-  // Load API comments when username changes
+  // Load fresh API comments only when explicitly requested (Settings page)
   useEffect(() => {
-    loadApiComments()
-  }, [loadApiComments])
+    if (fetchApiComments) {
+      loadApiComments()
+    }
+  }, [fetchApiComments, loadApiComments])
 
   // Combine manual and API commented post IDs
   const commentedPostIds = useMemo(() => {
