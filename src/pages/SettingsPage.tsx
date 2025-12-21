@@ -11,16 +11,13 @@ import { clearCommentCache } from '../services/commentCheckService'
 export function SettingsPage() {
   const { preferences, updatePreferences, resetPreferences } = useAppContext()
   const {
-    comments,
-    apiCommentedPostIds,
+    commentedPostIds,
     apiUserComments,
     checkedPostCount,
-    clearAll: clearCommentHistory,
     refresh: refreshComments,
     isLoadingApiComments,
   } = useCommentHistory({ fetchApiComments: true })
   const [username, setUsername] = useState(preferences.username)
-  const [showClearConfirm, setShowClearConfirm] = useState(false)
   const [showApiComments, setShowApiComments] = useState(false)
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,11 +27,6 @@ export function SettingsPage() {
   const handleUsernameSave = () => {
     updatePreferences({ username })
     clearCommentCache() // Clear cache when username changes
-  }
-
-  const handleClearHistory = () => {
-    clearCommentHistory()
-    setShowClearConfirm(false)
   }
 
   const handleResetPreferences = () => {
@@ -137,7 +129,7 @@ export function SettingsPage() {
             </p>
             <p className="text-sm text-green-600 dark:text-green-400">
               「{preferences.username}」として
-              <span className="mx-1 text-lg font-bold">{apiCommentedPostIds.length}</span>
+              <span className="mx-1 text-lg font-bold">{commentedPostIds.length}</span>
               件の投稿に
               <span className="mx-1 text-lg font-bold">{apiUserComments.length}</span>
               件のコメント
@@ -185,70 +177,6 @@ export function SettingsPage() {
             <p className="text-sm text-gray-600 dark:text-gray-300">
               上のユーザー名を設定すると、公式サイトでのコメントが自動検出されます
             </p>
-          </div>
-        )}
-
-        {/* Manual comment count */}
-        <div className="mt-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="text-sm text-gray-600 dark:text-gray-300">
-              手動で記録:
-              <span className="ml-1 text-lg font-bold text-nogi-600 dark:text-nogi-400">
-                {comments.length}
-              </span>
-              件
-            </div>
-            {comments.length > 0 && !showClearConfirm && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowClearConfirm(true)}
-              >
-                クリア
-              </Button>
-            )}
-          </div>
-          {showClearConfirm && (
-            <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg bg-red-50 p-3 dark:bg-red-900/20">
-              <span className="text-sm text-red-600 dark:text-red-400">本当に削除しますか？</span>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowClearConfirm(false)}
-                >
-                  キャンセル
-                </Button>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={handleClearHistory}
-                >
-                  削除
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Manual Comment History List */}
-        {comments.length > 0 && (
-          <div className="mt-4 max-h-48 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700">
-            {comments.map((comment) => (
-              <div
-                key={comment.postId}
-                className="flex items-center justify-between border-b border-gray-100 p-3 last:border-b-0 dark:border-gray-700"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                    {comment.postTitle}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {comment.memberName} • {new Date(comment.commentedAt).toLocaleDateString('ja-JP')}
-                  </p>
-                </div>
-              </div>
-            ))}
           </div>
         )}
       </section>

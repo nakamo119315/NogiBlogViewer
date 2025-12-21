@@ -10,29 +10,18 @@ import { CommentPanel } from '../comment/CommentPanel'
 interface BlogSplitViewProps {
   blog: BlogPost
   hasCommented?: boolean
-  onMarkAsCommented?: (postId: string) => void
   onDownloadClick?: () => void
 }
 
 export function BlogSplitView({
   blog,
   hasCommented = false,
-  onMarkAsCommented,
   onDownloadClick,
 }: BlogSplitViewProps) {
   const [isCommentPanelOpen, setIsCommentPanelOpen] = useState(false)
 
   const handleCommentClick = () => {
     setIsCommentPanelOpen(true)
-  }
-
-  const handleCommentSubmit = (postId: string) => {
-    onMarkAsCommented?.(postId)
-    setIsCommentPanelOpen(false)
-  }
-
-  const handleManualMark = () => {
-    onMarkAsCommented?.(blog.id)
   }
 
   return (
@@ -42,14 +31,12 @@ export function BlogSplitView({
         hasCommented={hasCommented}
         onCommentClick={handleCommentClick}
         onDownloadClick={onDownloadClick}
-        onMarkAsCommented={handleManualMark}
       />
 
       <CommentPanel
         blog={blog}
         isOpen={isCommentPanelOpen}
         onClose={() => setIsCommentPanelOpen(false)}
-        onCommentSubmit={handleCommentSubmit}
       />
     </>
   )

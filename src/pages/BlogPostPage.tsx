@@ -5,29 +5,13 @@
 import { useParams, Link } from 'react-router-dom'
 import { BlogSplitView } from '../components/blog/BlogSplitView'
 import { useBlogPost } from '../hooks/useBlogData'
+import { useCommentHistory } from '../hooks/useCommentHistory'
 import { Loading } from '../components/common/Loading'
-import { addCommentRecord, hasCommented } from '../services/commentService'
-import { useState, useEffect } from 'react'
 
 export function BlogPostPage() {
   const { blogId } = useParams<{ blogId: string }>()
   const { blog, isLoading, error } = useBlogPost(blogId)
-  const [isCommented, setIsCommented] = useState(false)
-
-  // Check if post has been commented on
-  useEffect(() => {
-    if (blogId) {
-      setIsCommented(hasCommented(blogId))
-    }
-  }, [blogId])
-
-  // Handle marking as commented
-  const handleMarkAsCommented = (postId: string) => {
-    if (blog) {
-      addCommentRecord(postId, blog.title, blog.memberName)
-      setIsCommented(true)
-    }
-  }
+  const { isCommented } = useCommentHistory()
 
   if (isLoading) {
     return <Loading text="ブログを読み込み中..." />
@@ -88,8 +72,7 @@ export function BlogPostPage() {
       {/* Blog Split View with Comment Panel */}
       <BlogSplitView
         blog={blog}
-        hasCommented={isCommented}
-        onMarkAsCommented={handleMarkAsCommented}
+        hasCommented={blogId ? isCommented(blogId) : false}
       />
     </div>
   )
