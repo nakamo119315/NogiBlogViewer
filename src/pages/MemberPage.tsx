@@ -85,7 +85,7 @@ export function MemberPage() {
               )}
               {member.bloodType && (
                 <span className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                  {member.bloodType}型
+                  {member.bloodType.endsWith('型') ? member.bloodType : `${member.bloodType}型`}
                 </span>
               )}
               {member.isGraduated && (
