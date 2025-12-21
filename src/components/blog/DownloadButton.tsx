@@ -171,44 +171,44 @@ export function DownloadButton({
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-40 bg-black/30"
+            className="fixed inset-0 z-[60] bg-black/50"
             onClick={() => setShowOptions(false)}
           />
-          {/* Bottom Sheet */}
-          <div className="fixed inset-x-0 bottom-0 z-50 rounded-t-2xl bg-white p-4 pb-8 shadow-xl dark:bg-gray-800">
-            <div className="mx-auto mb-4 h-1 w-12 rounded-full bg-gray-300 dark:bg-gray-600" />
-            <div className="space-y-2">
+          {/* Bottom Sheet - above bottom nav */}
+          <div className="fixed inset-x-0 bottom-0 z-[70] rounded-t-2xl bg-white px-4 pb-24 pt-4 shadow-2xl dark:bg-gray-800">
+            <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-gray-300 dark:bg-gray-600" />
+            <div className="space-y-3">
               <button
                 onClick={handleShare}
-                className="flex w-full items-center gap-4 rounded-xl bg-gray-50 px-4 py-3 text-left hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600"
+                className="flex w-full items-center gap-4 rounded-xl bg-gray-50 px-4 py-4 text-left active:bg-gray-100 dark:bg-gray-700 dark:active:bg-gray-600"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
-                  <svg className="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
+                  <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                   </svg>
                 </div>
                 <div>
-                  <div className="font-medium text-gray-900 dark:text-white">写真に保存</div>
+                  <div className="text-base font-medium text-gray-900 dark:text-white">写真に保存</div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">共有シートから保存できます</div>
                 </div>
               </button>
               <button
                 onClick={handleZipDownload}
-                className="flex w-full items-center gap-4 rounded-xl bg-gray-50 px-4 py-3 text-left hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600"
+                className="flex w-full items-center gap-4 rounded-xl bg-gray-50 px-4 py-4 text-left active:bg-gray-100 dark:bg-gray-700 dark:active:bg-gray-600"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
-                  <svg className="h-5 w-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+                  <svg className="h-6 w-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                   </svg>
                 </div>
                 <div>
-                  <div className="font-medium text-gray-900 dark:text-white">ZIPダウンロード</div>
+                  <div className="text-base font-medium text-gray-900 dark:text-white">ZIPダウンロード</div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">ファイルアプリに保存</div>
                 </div>
               </button>
               <button
                 onClick={() => setShowOptions(false)}
-                className="mt-2 w-full rounded-xl bg-gray-200 py-3 font-medium text-gray-700 dark:bg-gray-600 dark:text-gray-200"
+                className="mt-3 w-full rounded-xl bg-gray-200 py-4 text-base font-medium text-gray-700 active:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:active:bg-gray-500"
               >
                 キャンセル
               </button>
