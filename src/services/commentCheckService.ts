@@ -76,9 +76,10 @@ async function fetchUserComments(username: string): Promise<FetchResult> {
   const userComments: UserComment[] = []
 
   // Fetch comments in batches to avoid timeout
-  // Fetch up to 10000 comments (50 batches of 200)
-  const batchSize = 200
-  const maxBatches = 50
+  // API is slow with large batches, so use smaller batches (50 each)
+  // Fetch up to 5000 comments (100 batches of 50)
+  const batchSize = 50
+  const maxBatches = 100
 
   for (let batch = 0; batch < maxBatches; batch++) {
     try {
@@ -87,8 +88,8 @@ async function fetchUserComments(username: string): Promise<FetchResult> {
         st: batch * batchSize,
       })
 
-      // Use longer timeout for comment API (20 seconds)
-      const response = await fetchJSONP<ApiCommentResponse>(url, 20000)
+      // Use longer timeout for comment API (30 seconds)
+      const response = await fetchJSONP<ApiCommentResponse>(url, 30000)
 
       // Find comments by the user
       for (const comment of response.data) {
