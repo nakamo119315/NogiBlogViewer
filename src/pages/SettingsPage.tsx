@@ -116,6 +116,36 @@ export function SettingsPage() {
             </div>
           )}
         </div>
+
+        {/* Comment History List */}
+        {comments.length > 0 && (
+          <div className="mt-4 max-h-64 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700">
+            {comments.map((comment) => (
+              <div
+                key={comment.postId}
+                className="flex items-center justify-between border-b border-gray-100 p-3 last:border-b-0 dark:border-gray-700"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+                    {comment.postTitle}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {comment.memberName} • {new Date(comment.commentedAt).toLocaleDateString('ja-JP')}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Info about tracking */}
+        <div className="mt-4 rounded-lg bg-amber-50 p-3 text-xs text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
+          <p className="font-medium">コメント追跡について</p>
+          <p className="mt-1">
+            このアプリの「コメントする」ボタンから公式サイトに移動した場合のみ記録されます。
+            公式サイトに直接アクセスしてコメントした場合は追跡されません。
+          </p>
+        </div>
       </section>
 
       {/* Favorites Stats */}

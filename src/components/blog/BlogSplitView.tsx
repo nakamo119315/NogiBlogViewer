@@ -31,6 +31,10 @@ export function BlogSplitView({
     setIsCommentPanelOpen(false)
   }
 
+  const handleManualMark = () => {
+    onMarkAsCommented?.(blog.id)
+  }
+
   return (
     <>
       <BlogContent
@@ -38,6 +42,7 @@ export function BlogSplitView({
         hasCommented={hasCommented}
         onCommentClick={handleCommentClick}
         onDownloadClick={onDownloadClick}
+        onMarkAsCommented={handleManualMark}
       />
 
       <CommentPanel

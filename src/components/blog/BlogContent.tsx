@@ -16,12 +16,14 @@ interface BlogContentProps {
   hasCommented?: boolean
   onCommentClick?: () => void
   onDownloadClick?: () => void
+  onMarkAsCommented?: () => void
 }
 
 export function BlogContent({
   blog,
   hasCommented = false,
   onCommentClick,
+  onMarkAsCommented,
 }: BlogContentProps) {
   // Normalize image URLs in content
   const processedContent = useMemo(
@@ -156,6 +158,29 @@ export function BlogContent({
             memberName={blog.memberName}
             postTitle={blog.title}
           />
+        )}
+
+        {/* Mark as Commented Button (for direct comments on official site) */}
+        {!hasCommented && onMarkAsCommented && (
+          <button
+            onClick={onMarkAsCommented}
+            className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-green-100 hover:text-green-700 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-green-900/30 dark:hover:text-green-400"
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            コメント済みにする
+          </button>
         )}
 
         {/* Official Site Link */}
