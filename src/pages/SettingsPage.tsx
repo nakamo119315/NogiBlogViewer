@@ -6,10 +6,17 @@ import { useState } from 'react'
 import { useAppContext } from '../store/AppContext'
 import { useCommentHistory } from '../hooks/useCommentHistory'
 import { Button } from '../components/common/Button'
+import { clearCommentCache } from '../services/commentCheckService'
 
 export function SettingsPage() {
   const { preferences, updatePreferences, resetPreferences } = useAppContext()
-  const { comments, clearAll: clearCommentHistory } = useCommentHistory()
+  const {
+    comments,
+    apiCommentedPostIds,
+    clearAll: clearCommentHistory,
+    refresh: refreshComments,
+    isLoadingApiComments,
+  } = useCommentHistory()
   const [username, setUsername] = useState(preferences.username)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
 
@@ -19,6 +26,7 @@ export function SettingsPage() {
 
   const handleUsernameSave = () => {
     updatePreferences({ username })
+    clearCommentCache() // Clear cache when username changes
   }
 
   const handleClearHistory = () => {
@@ -71,18 +79,75 @@ export function SettingsPage() {
 
       {/* Comment History Stats */}
       <section className="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-          コメント履歴
-        </h2>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          これまでにコメントした投稿の記録
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              コメント履歴
+            </h2>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              これまでにコメントした投稿の記録
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={refreshComments}
+            disabled={isLoadingApiComments}
+          >
+            {isLoadingApiComments ? (
+              <span className="flex items-center gap-2">
+                <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                更新中
+              </span>
+            ) : (
+              '更新'
+            )}
+          </Button>
+        </div>
+
+        {/* API-detected comments */}
+        {preferences.username && (
+          <div className="mt-4 rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
+            <div className="flex items-center gap-2">
+              <svg className="h-5 w-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="font-medium text-green-700 dark:text-green-300">
+                公式APIから検出
+              </span>
+            </div>
+            <p className="mt-2 text-sm text-green-600 dark:text-green-400">
+              「{preferences.username}」として
+              <span className="mx-1 text-lg font-bold">{apiCommentedPostIds.length}</span>
+              件の投稿にコメントしています
+            </p>
+            {isLoadingApiComments && (
+              <p className="mt-1 text-xs text-green-500 dark:text-green-500">
+                コメントを確認中...
+              </p>
+            )}
+          </div>
+        )}
+
+        {!preferences.username && (
+          <div className="mt-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-700">
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              上のユーザー名を設定すると、公式サイトでのコメントが自動検出されます
+            </p>
+          </div>
+        )}
+
+        {/* Manual comment count */}
         <div className="mt-4 flex items-center justify-between">
           <div className="text-sm text-gray-600 dark:text-gray-300">
-            <span className="text-2xl font-bold text-nogi-600 dark:text-nogi-400">
+            手動で記録:
+            <span className="ml-1 text-lg font-bold text-nogi-600 dark:text-nogi-400">
               {comments.length}
-            </span>{' '}
-            件のコメント済み投稿
+            </span>
+            件
           </div>
           {comments.length > 0 && (
             <div className="relative">
@@ -110,16 +175,16 @@ export function SettingsPage() {
                   size="sm"
                   onClick={() => setShowClearConfirm(true)}
                 >
-                  履歴をクリア
+                  手動履歴をクリア
                 </Button>
               )}
             </div>
           )}
         </div>
 
-        {/* Comment History List */}
+        {/* Manual Comment History List */}
         {comments.length > 0 && (
-          <div className="mt-4 max-h-64 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="mt-4 max-h-48 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700">
             {comments.map((comment) => (
               <div
                 key={comment.postId}
@@ -137,15 +202,6 @@ export function SettingsPage() {
             ))}
           </div>
         )}
-
-        {/* Info about tracking */}
-        <div className="mt-4 rounded-lg bg-amber-50 p-3 text-xs text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
-          <p className="font-medium">コメント追跡について</p>
-          <p className="mt-1">
-            このアプリの「コメントする」ボタンから公式サイトに移動した場合のみ記録されます。
-            公式サイトに直接アクセスしてコメントした場合は追跡されません。
-          </p>
-        </div>
       </section>
 
       {/* Favorites Stats */}

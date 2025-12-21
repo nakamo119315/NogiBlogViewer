@@ -239,9 +239,38 @@ export const API_ENDPOINTS = {
   BLOG_LIST: 'https://www.nogizaka46.com/s/n46/api/list/blog',
   /** Member list API */
   MEMBER_LIST: 'https://www.nogizaka46.com/s/n46/api/list/member',
+  /** Comment list API */
+  COMMENT_LIST: 'https://www.nogizaka46.com/s/n46/api/list/comment',
   /** Base URL for official site */
   BASE_URL: 'https://www.nogizaka46.com',
 } as const;
+
+/**
+ * Comment API Response
+ * Endpoint: https://www.nogizaka46.com/s/n46/api/list/comment
+ */
+export interface ApiCommentResponse {
+  /** Total number of comments */
+  count: string;
+  /** Array of comment entries */
+  data: ApiCommentEntry[];
+}
+
+/**
+ * Single comment entry from the API
+ */
+export interface ApiCommentEntry {
+  /** Blog post ID this comment belongs to */
+  kijicode: string;
+  /** Unique comment ID */
+  code: string;
+  /** Comment content (HTML formatted) */
+  body: string;
+  /** Commenter's name */
+  comment1: string;
+  /** Comment date (format: "YYYY/MM/DD HH:MM:SS") */
+  date: string;
+}
 
 /**
  * API request parameters

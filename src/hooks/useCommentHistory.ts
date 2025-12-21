@@ -11,12 +11,19 @@ import {
   getCommentedPostIds,
   clearCommentHistory,
 } from '../services/commentService'
+import {
+  getCommentedPostIdsByUsername,
+  refreshCommentedPosts,
+} from '../services/commentCheckService'
+import { useAppContext } from '../store/AppContext'
 
 interface UseCommentHistoryResult {
-  /** List of comment records */
+  /** List of comment records (manual) */
   comments: CommentRecord[]
-  /** List of commented post IDs */
+  /** List of commented post IDs (manual + API) */
   commentedPostIds: string[]
+  /** List of API-detected commented post IDs */
+  apiCommentedPostIds: string[]
   /** Check if a post has been commented on */
   isCommented: (postId: string) => boolean
   /** Mark a post as commented */
@@ -25,25 +32,61 @@ interface UseCommentHistoryResult {
   removeComment: (postId: string) => void
   /** Clear all comment history */
   clearAll: () => void
-  /** Refresh comment history from localStorage */
+  /** Refresh comment history */
   refresh: () => void
+  /** Whether API comments are being loaded */
+  isLoadingApiComments: boolean
 }
 
 export function useCommentHistory(): UseCommentHistoryResult {
   const [comments, setComments] = useState<CommentRecord[]>([])
-  const [commentedPostIds, setCommentedPostIds] = useState<string[]>([])
+  const [manualCommentedPostIds, setManualCommentedPostIds] = useState<string[]>([])
+  const [apiCommentedPostIds, setApiCommentedPostIds] = useState<string[]>([])
+  const [isLoadingApiComments, setIsLoadingApiComments] = useState(false)
 
-  // Load comments from localStorage
-  const loadComments = useCallback(() => {
+  const { preferences } = useAppContext()
+  const username = preferences.username
+
+  // Load manual comments from localStorage
+  const loadManualComments = useCallback(() => {
     const history = getCommentHistory()
     setComments(history)
-    setCommentedPostIds(getCommentedPostIds())
+    setManualCommentedPostIds(getCommentedPostIds())
   }, [])
 
-  // Initial load
+  // Load API comments
+  const loadApiComments = useCallback(async () => {
+    if (!username) {
+      setApiCommentedPostIds([])
+      return
+    }
+
+    setIsLoadingApiComments(true)
+    try {
+      const postIds = await getCommentedPostIdsByUsername(username)
+      setApiCommentedPostIds(postIds)
+    } catch (error) {
+      console.error('Failed to load API comments:', error)
+    } finally {
+      setIsLoadingApiComments(false)
+    }
+  }, [username])
+
+  // Initial load - manual comments
   useEffect(() => {
-    loadComments()
-  }, [loadComments])
+    loadManualComments()
+  }, [loadManualComments])
+
+  // Load API comments when username changes
+  useEffect(() => {
+    loadApiComments()
+  }, [loadApiComments])
+
+  // Combine manual and API commented post IDs
+  const commentedPostIds = useMemo(() => {
+    const combined = new Set([...manualCommentedPostIds, ...apiCommentedPostIds])
+    return Array.from(combined)
+  }, [manualCommentedPostIds, apiCommentedPostIds])
 
   // Check if a post is commented
   const isCommented = useCallback(
@@ -55,44 +98,62 @@ export function useCommentHistory(): UseCommentHistoryResult {
   const markAsCommented = useCallback(
     (postId: string, postTitle: string, memberName: string, note?: string) => {
       addCommentRecord(postId, postTitle, memberName, note)
-      loadComments()
+      loadManualComments()
     },
-    [loadComments]
+    [loadManualComments]
   )
 
   // Remove a comment record
   const removeComment = useCallback(
     (postId: string) => {
       removeCommentRecord(postId)
-      loadComments()
+      loadManualComments()
     },
-    [loadComments]
+    [loadManualComments]
   )
 
-  // Clear all comments
+  // Clear all manual comments
   const clearAll = useCallback(() => {
     clearCommentHistory()
-    loadComments()
-  }, [loadComments])
+    loadManualComments()
+  }, [loadManualComments])
+
+  // Refresh both manual and API comments
+  const refresh = useCallback(async () => {
+    loadManualComments()
+    if (username) {
+      setIsLoadingApiComments(true)
+      try {
+        const postIds = await refreshCommentedPosts(username)
+        setApiCommentedPostIds(postIds)
+      } finally {
+        setIsLoadingApiComments(false)
+      }
+    }
+  }, [loadManualComments, username])
 
   return useMemo(
     () => ({
       comments,
       commentedPostIds,
+      apiCommentedPostIds,
       isCommented,
       markAsCommented,
       removeComment,
       clearAll,
-      refresh: loadComments,
+      refresh,
+      isLoadingApiComments,
     }),
     [
       comments,
       commentedPostIds,
+      apiCommentedPostIds,
       isCommented,
       markAsCommented,
       removeComment,
       clearAll,
-      loadComments,
+      refresh,
+      isLoadingApiComments,
     ]
   )
 }
