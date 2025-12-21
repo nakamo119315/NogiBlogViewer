@@ -34,7 +34,7 @@ export async function fetchBlogs(
     }
 
     if (memberCode) {
-      params.dy = memberCode
+      params.ct = memberCode
     }
 
     const url = buildApiUrl(API_ENDPOINTS.BLOG_LIST, params)
