@@ -6,6 +6,7 @@ import { useParams, Link } from 'react-router-dom'
 import { BlogList } from '../components/blog/BlogList'
 import { useBlogData } from '../hooks/useBlogData'
 import { useMember } from '../hooks/useMemberData'
+import { useCommentHistory } from '../hooks/useCommentHistory'
 import { Loading } from '../components/common/Loading'
 import { useAppContext } from '../store/AppContext'
 
@@ -19,6 +20,7 @@ export function MemberPage() {
     loadMore,
   } = useBlogData({ memberCode: memberId })
   const { preferences, toggleFavorite } = useAppContext()
+  const { commentedPostIds } = useCommentHistory()
 
   const isFavorite = member
     ? preferences.favoriteMembers.includes(member.code)
@@ -130,6 +132,7 @@ export function MemberPage() {
           blogs={blogs}
           isLoading={isBlogsLoading}
           hasMore={hasMore}
+          commentedPostIds={commentedPostIds}
           showMemberInfo={false}
           onLoadMore={loadMore}
         />
