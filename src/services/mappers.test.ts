@@ -58,10 +58,14 @@ describe('mappers', () => {
         cate: '1期生',
         img: '/members/member001.jpg',
         link: '/s/n46/artist/member001',
+        pick: '',
+        god: '',
+        under: '',
         birthday: '2000年1月15日',
         blood: 'A型',
         constellation: 'やぎ座',
         graduation: 'NO',
+        groupcode: '',
       }
 
       const result = mapApiMemberEntry(apiEntry)
@@ -86,10 +90,14 @@ describe('mappers', () => {
         cate: '1期生',
         img: '/member.jpg',
         link: '/member',
+        pick: '',
+        god: '',
+        under: '',
         birthday: '1990年1月1日',
         blood: 'B型',
         constellation: 'やぎ座',
         graduation: 'YES',
+        groupcode: '',
       }
 
       const result = mapApiMemberEntry(apiEntry)
@@ -114,8 +122,8 @@ describe('mappers', () => {
   describe('mapApiMemberEntries', () => {
     it('should map array of member entries', () => {
       const entries: ApiMemberEntry[] = [
-        { code: 'm1', name: 'Member 1', english_name: '', kana: '', cate: '', img: '', link: '', birthday: '', blood: '', constellation: '', graduation: 'NO' },
-        { code: 'm2', name: 'Member 2', english_name: '', kana: '', cate: '', img: '', link: '', birthday: '', blood: '', constellation: '', graduation: 'NO' },
+        { code: 'm1', name: 'Member 1', english_name: '', kana: '', cate: '', img: '', link: '', pick: '', god: '', under: '', birthday: '', blood: '', constellation: '', graduation: 'NO', groupcode: '' },
+        { code: 'm2', name: 'Member 2', english_name: '', kana: '', cate: '', img: '', link: '', pick: '', god: '', under: '', birthday: '', blood: '', constellation: '', graduation: 'NO', groupcode: '' },
       ]
 
       const result = mapApiMemberEntries(entries)
