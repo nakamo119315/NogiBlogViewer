@@ -56,20 +56,20 @@ async function fetchUserComments(username: string): Promise<string[]> {
 
   const commentedPostIds: string[] = []
 
-  try {
-    // Fetch comments in batches to avoid timeout
-    // Start with recent 200 comments, then fetch more if needed
-    const batchSize = 200
-    const maxBatches = 3 // Up to 600 comments total
+  // Fetch comments in batches to avoid timeout
+  // Fetch up to 2000 comments (10 batches of 200)
+  const batchSize = 200
+  const maxBatches = 10
 
-    for (let batch = 0; batch < maxBatches; batch++) {
+  for (let batch = 0; batch < maxBatches; batch++) {
+    try {
       const url = buildApiUrl(API_ENDPOINTS.COMMENT_LIST, {
         rw: batchSize,
         st: batch * batchSize,
       })
 
-      // Use longer timeout for comment API (15 seconds)
-      const response = await fetchJSONP<ApiCommentResponse>(url, 15000)
+      // Use longer timeout for comment API (20 seconds)
+      const response = await fetchJSONP<ApiCommentResponse>(url, 20000)
 
       // Find comments by the user
       for (const comment of response.data) {
@@ -84,9 +84,16 @@ async function fetchUserComments(username: string): Promise<string[]> {
       if (response.data.length < batchSize) {
         break
       }
+    } catch (error) {
+      console.error(`Failed to fetch comments batch ${batch}:`, error)
+      // Continue with next batch or return what we have so far
+      if (batch === 0) {
+        // First batch failed, return empty
+        return []
+      }
+      // We have some results, stop fetching and return what we found
+      break
     }
-  } catch (error) {
-    console.error('Failed to fetch comments from API:', error)
   }
 
   return commentedPostIds
