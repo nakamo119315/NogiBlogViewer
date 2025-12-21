@@ -14,6 +14,7 @@ export function SettingsPage() {
     comments,
     apiCommentedPostIds,
     apiUserComments,
+    checkedPostCount,
     clearAll: clearCommentHistory,
     refresh: refreshComments,
     isLoadingApiComments,
@@ -111,7 +112,7 @@ export function SettingsPage() {
         </div>
 
         {/* API-detected comments */}
-        {preferences.username && (
+        {preferences.username && preferences.favoriteMembers.length > 0 && (
           <div className="mt-4 rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -119,7 +120,7 @@ export function SettingsPage() {
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
                 <span className="font-medium text-green-700 dark:text-green-300">
-                  公式APIから検出
+                  お気に入りメンバーの記事から検出
                 </span>
               </div>
               {apiUserComments.length > 0 && (
@@ -132,15 +133,18 @@ export function SettingsPage() {
               )}
             </div>
             <p className="mt-2 text-sm text-green-600 dark:text-green-400">
+              お気に入り{preferences.favoriteMembers.length}人の最新{checkedPostCount}記事をチェック
+            </p>
+            <p className="text-sm text-green-600 dark:text-green-400">
               「{preferences.username}」として
               <span className="mx-1 text-lg font-bold">{apiCommentedPostIds.length}</span>
               件の投稿に
               <span className="mx-1 text-lg font-bold">{apiUserComments.length}</span>
-              件のコメントをしています
+              件のコメント
             </p>
             {isLoadingApiComments && (
               <p className="mt-1 text-xs text-green-500 dark:text-green-500">
-                コメントを確認中（最大1万件を検索）...
+                コメントを確認中...
               </p>
             )}
 
@@ -164,6 +168,15 @@ export function SettingsPage() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* No favorites message */}
+        {preferences.username && preferences.favoriteMembers.length === 0 && (
+          <div className="mt-4 rounded-lg bg-yellow-50 p-4 dark:bg-yellow-900/20">
+            <p className="text-sm text-yellow-700 dark:text-yellow-300">
+              お気に入りメンバーを登録すると、そのメンバーの最新記事へのコメントが自動検出されます
+            </p>
           </div>
         )}
 

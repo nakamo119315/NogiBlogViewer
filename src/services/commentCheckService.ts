@@ -1,5 +1,6 @@
 /**
  * Service for checking user comments from the official API
+ * Fetches comments for specific blog posts (by article ID)
  */
 
 import type { ApiCommentResponse } from '../types/api'
@@ -7,7 +8,7 @@ import { fetchJSONP, buildApiUrl } from './api'
 import { API_ENDPOINTS } from '../types/api'
 
 const CACHE_KEY = 'nogiblog_comment_cache'
-const CACHE_DURATION = 10 * 60 * 1000 // 10 minutes (longer due to more data)
+const CACHE_DURATION = 10 * 60 * 1000 // 10 minutes
 
 /** User comment found from API */
 export interface UserComment {
@@ -23,6 +24,7 @@ export interface UserComment {
 
 interface CommentCache {
   username: string
+  postIds: string[] // Post IDs that were checked
   commentedPostIds: string[]
   userComments: UserComment[]
   lastFetched: number
@@ -59,46 +61,32 @@ export function clearCommentCache(): void {
   localStorage.removeItem(CACHE_KEY)
 }
 
-interface FetchResult {
-  postIds: string[]
-  comments: UserComment[]
-}
-
 /**
- * Fetch comments from API and find posts commented by the user
+ * Fetch all comments for a specific blog post
+ * @param postId - The blog post ID (kijicode)
+ * @param username - Username to search for
+ * @returns Comments made by the user on this post
  */
-async function fetchUserComments(username: string): Promise<FetchResult> {
-  if (!username.trim()) {
-    return { postIds: [], comments: [] }
-  }
-
-  const commentedPostIds: string[] = []
+async function fetchCommentsForPost(postId: string, username: string): Promise<UserComment[]> {
   const userComments: UserComment[] = []
+  const batchSize = 10
+  let offset = 0
+  const maxIterations = 100 // Safety limit (1000 comments per post max)
 
-  // Fetch comments in batches to avoid timeout
-  // API is slow with large batches, so use smaller batches (50 each)
-  // Fetch up to 5000 comments (100 batches of 50)
-  const batchSize = 50
-  const maxBatches = 100
-
-  for (let batch = 0; batch < maxBatches; batch++) {
+  for (let i = 0; i < maxIterations; i++) {
     try {
       const url = buildApiUrl(API_ENDPOINTS.COMMENT_LIST, {
+        kiji: postId,
         rw: batchSize,
-        st: batch * batchSize,
+        st: offset,
+        callback: 'res',
       })
 
-      // Use longer timeout for comment API (30 seconds)
-      const response = await fetchJSONP<ApiCommentResponse>(url, 30000)
+      const response = await fetchJSONP<ApiCommentResponse>(url, 15000)
 
       // Find comments by the user
       for (const comment of response.data) {
         if (comment.comment1 === username) {
-          // Add to post IDs (deduplicated)
-          if (!commentedPostIds.includes(comment.kijicode)) {
-            commentedPostIds.push(comment.kijicode)
-          }
-          // Store comment details
           userComments.push({
             postId: comment.kijicode,
             commentId: comment.code,
@@ -112,39 +100,42 @@ async function fetchUserComments(username: string): Promise<FetchResult> {
       if (response.data.length < batchSize) {
         break
       }
+
+      offset += batchSize
     } catch (error) {
-      console.error(`Failed to fetch comments batch ${batch}:`, error)
-      // Continue with next batch or return what we have so far
-      if (batch === 0) {
-        // First batch failed, return empty
-        return { postIds: [], comments: [] }
-      }
-      // We have some results, stop fetching and return what we found
+      console.error(`Failed to fetch comments for post ${postId} at offset ${offset}:`, error)
       break
     }
   }
 
-  return { postIds: commentedPostIds, comments: userComments }
+  return userComments
 }
 
-interface CommentResult {
+export interface CommentResult {
   postIds: string[]
   comments: UserComment[]
 }
 
 /**
- * Get post IDs and comments by username
- * Uses cache if available and username hasn't changed
+ * Check comments on specific blog posts for a username
+ * @param postIds - Array of post IDs to check
+ * @param username - Username to search for
+ * @returns Result with commented post IDs and comment details
  */
-export async function getCommentedPostIdsByUsername(username: string): Promise<CommentResult> {
-  if (!username.trim()) {
+export async function checkCommentsOnPosts(
+  postIds: string[],
+  username: string
+): Promise<CommentResult> {
+  if (!username.trim() || postIds.length === 0) {
     return { postIds: [], comments: [] }
   }
 
-  // Check cache
+  // Check cache first
   const cache = getCache()
+  const cacheKey = postIds.sort().join(',')
   if (cache &&
       cache.username === username &&
+      cache.postIds.sort().join(',') === cacheKey &&
       Date.now() - cache.lastFetched < CACHE_DURATION) {
     return {
       postIds: cache.commentedPostIds,
@@ -152,42 +143,53 @@ export async function getCommentedPostIdsByUsername(username: string): Promise<C
     }
   }
 
-  // Fetch fresh data
-  const result = await fetchUserComments(username)
+  const allComments: UserComment[] = []
+  const commentedPostIds: string[] = []
+
+  // Fetch comments for each post
+  for (const postId of postIds) {
+    const comments = await fetchCommentsForPost(postId, username)
+    if (comments.length > 0) {
+      allComments.push(...comments)
+      if (!commentedPostIds.includes(postId)) {
+        commentedPostIds.push(postId)
+      }
+    }
+  }
 
   // Save to cache
   saveCache({
     username,
-    commentedPostIds: result.postIds,
-    userComments: result.comments,
+    postIds,
+    commentedPostIds,
+    userComments: allComments,
     lastFetched: Date.now(),
   })
 
-  return result
+  return { postIds: commentedPostIds, comments: allComments }
 }
 
 /**
- * Force refresh comment data for a username
+ * Force refresh comment data
  */
-export async function refreshCommentedPosts(username: string): Promise<CommentResult> {
+export async function refreshCommentCheck(
+  postIds: string[],
+  username: string
+): Promise<CommentResult> {
   clearCommentCache()
-  return getCommentedPostIdsByUsername(username)
+  return checkCommentsOnPosts(postIds, username)
 }
 
 /**
- * Check if cache is valid for the given username
+ * Check if cache is valid for the given posts and username
  */
-export function isCacheValid(username: string): boolean {
+export function isCacheValid(postIds: string[], username: string): boolean {
   const cache = getCache()
-  return !!(cache &&
+  if (!cache) return false
+  const cacheKey = postIds.sort().join(',')
+  return (
     cache.username === username &&
-    Date.now() - cache.lastFetched < CACHE_DURATION)
-}
-
-/**
- * Get cached user comments
- */
-export function getCachedUserComments(): UserComment[] {
-  const cache = getCache()
-  return cache?.userComments || []
+    cache.postIds.sort().join(',') === cacheKey &&
+    Date.now() - cache.lastFetched < CACHE_DURATION
+  )
 }

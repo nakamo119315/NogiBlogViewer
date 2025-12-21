@@ -12,10 +12,11 @@ import {
   clearCommentHistory,
 } from '../services/commentService'
 import {
-  getCommentedPostIdsByUsername,
-  refreshCommentedPosts,
+  checkCommentsOnPosts,
+  refreshCommentCheck,
   type UserComment,
 } from '../services/commentCheckService'
+import { fetchBlogsByMember } from '../services/blogService'
 import { useAppContext } from '../store/AppContext'
 
 interface UseCommentHistoryResult {
@@ -27,6 +28,8 @@ interface UseCommentHistoryResult {
   apiCommentedPostIds: string[]
   /** List of API-detected user comments with details */
   apiUserComments: UserComment[]
+  /** Number of posts being checked */
+  checkedPostCount: number
   /** Check if a post has been commented on */
   isCommented: (postId: string) => boolean
   /** Mark a post as commented */
@@ -46,10 +49,12 @@ export function useCommentHistory(): UseCommentHistoryResult {
   const [manualCommentedPostIds, setManualCommentedPostIds] = useState<string[]>([])
   const [apiCommentedPostIds, setApiCommentedPostIds] = useState<string[]>([])
   const [apiUserComments, setApiUserComments] = useState<UserComment[]>([])
+  const [checkedPostCount, setCheckedPostCount] = useState(0)
   const [isLoadingApiComments, setIsLoadingApiComments] = useState(false)
 
   const { preferences } = useAppContext()
   const username = preferences.username
+  const favoriteMembers = preferences.favoriteMembers
 
   // Load manual comments from localStorage
   const loadManualComments = useCallback(() => {
@@ -58,17 +63,38 @@ export function useCommentHistory(): UseCommentHistoryResult {
     setManualCommentedPostIds(getCommentedPostIds())
   }, [])
 
-  // Load API comments
+  // Load API comments for favorite members' latest posts
   const loadApiComments = useCallback(async () => {
-    if (!username) {
+    if (!username || favoriteMembers.length === 0) {
       setApiCommentedPostIds([])
       setApiUserComments([])
+      setCheckedPostCount(0)
       return
     }
 
     setIsLoadingApiComments(true)
     try {
-      const result = await getCommentedPostIdsByUsername(username)
+      // Get latest 2 posts from each favorite member
+      const postIds: string[] = []
+      for (const memberId of favoriteMembers) {
+        try {
+          const blogs = await fetchBlogsByMember(memberId, 2)
+          postIds.push(...blogs.map((b) => b.id))
+        } catch (error) {
+          console.error(`Failed to fetch blogs for member ${memberId}:`, error)
+        }
+      }
+
+      setCheckedPostCount(postIds.length)
+
+      if (postIds.length === 0) {
+        setApiCommentedPostIds([])
+        setApiUserComments([])
+        return
+      }
+
+      // Check comments on those posts
+      const result = await checkCommentsOnPosts(postIds, username)
       setApiCommentedPostIds(result.postIds)
       setApiUserComments(result.comments)
     } catch (error) {
@@ -76,7 +102,7 @@ export function useCommentHistory(): UseCommentHistoryResult {
     } finally {
       setIsLoadingApiComments(false)
     }
-  }, [username])
+  }, [username, favoriteMembers])
 
   // Initial load - manual comments
   useEffect(() => {
@@ -127,17 +153,32 @@ export function useCommentHistory(): UseCommentHistoryResult {
   // Refresh both manual and API comments
   const refresh = useCallback(async () => {
     loadManualComments()
-    if (username) {
+    if (username && favoriteMembers.length > 0) {
       setIsLoadingApiComments(true)
       try {
-        const result = await refreshCommentedPosts(username)
-        setApiCommentedPostIds(result.postIds)
-        setApiUserComments(result.comments)
+        // Get latest 2 posts from each favorite member
+        const postIds: string[] = []
+        for (const memberId of favoriteMembers) {
+          try {
+            const blogs = await fetchBlogsByMember(memberId, 2)
+            postIds.push(...blogs.map((b) => b.id))
+          } catch (error) {
+            console.error(`Failed to fetch blogs for member ${memberId}:`, error)
+          }
+        }
+
+        setCheckedPostCount(postIds.length)
+
+        if (postIds.length > 0) {
+          const result = await refreshCommentCheck(postIds, username)
+          setApiCommentedPostIds(result.postIds)
+          setApiUserComments(result.comments)
+        }
       } finally {
         setIsLoadingApiComments(false)
       }
     }
-  }, [loadManualComments, username])
+  }, [loadManualComments, username, favoriteMembers])
 
   return useMemo(
     () => ({
@@ -145,6 +186,7 @@ export function useCommentHistory(): UseCommentHistoryResult {
       commentedPostIds,
       apiCommentedPostIds,
       apiUserComments,
+      checkedPostCount,
       isCommented,
       markAsCommented,
       removeComment,
@@ -157,6 +199,7 @@ export function useCommentHistory(): UseCommentHistoryResult {
       commentedPostIds,
       apiCommentedPostIds,
       apiUserComments,
+      checkedPostCount,
       isCommented,
       markAsCommented,
       removeComment,
