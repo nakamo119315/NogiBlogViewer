@@ -2,6 +2,7 @@
  * MemberCard component - displays a single member card
  */
 
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { Member } from '../../types/api'
 
@@ -16,6 +17,8 @@ export function MemberCard({
   isFavorite = false,
   onFavoriteToggle,
 }: MemberCardProps) {
+  const [imageError, setImageError] = useState(false)
+
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -29,15 +32,16 @@ export function MemberCard({
     >
       {/* Profile Image */}
       <div className="aspect-[3/4] overflow-hidden bg-gray-100 dark:bg-gray-700">
-        {member.profileImage ? (
+        {member.profileImage && !imageError ? (
           <img
             src={member.profileImage}
             alt={member.name}
             className="h-full w-full object-cover transition-transform group-hover:scale-105"
             loading="lazy"
+            onError={() => setImageError(true)}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-gray-400">
+          <div className="flex h-full w-full flex-col items-center justify-center text-gray-400">
             <svg
               className="h-16 w-16"
               fill="none"
@@ -51,6 +55,7 @@ export function MemberCard({
                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
               />
             </svg>
+            <span className="mt-2 text-xs">{member.name}</span>
           </div>
         )}
       </div>

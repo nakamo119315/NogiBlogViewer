@@ -8,9 +8,20 @@
  * @param timeout - Timeout in milliseconds (default: 10000)
  * @returns Promise with the parsed data
  */
+// Queue for serializing JSONP requests (API uses fixed callback name "res")
+let jsonpQueue: Promise<unknown> = Promise.resolve()
+
 export function fetchJSONP<T>(url: string, timeout = 10000): Promise<T> {
+  // Serialize requests since we must use the fixed "res" callback name
+  const request = jsonpQueue.then(() => executeJSONP<T>(url, timeout))
+  jsonpQueue = request.catch(() => {}) // Continue queue even if request fails
+  return request
+}
+
+function executeJSONP<T>(url: string, timeout: number): Promise<T> {
   return new Promise((resolve, reject) => {
-    const callbackName = `jsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`
+    // The Nogizaka46 API ignores the callback parameter and always uses "res"
+    const callbackName = 'res'
     const script = document.createElement('script')
     let timeoutId: ReturnType<typeof setTimeout>
 
@@ -41,9 +52,8 @@ export function fetchJSONP<T>(url: string, timeout = 10000): Promise<T> {
       reject(new Error('JSONP request failed'))
     }
 
-    // Build URL with callback parameter
-    const separator = url.includes('?') ? '&' : '?'
-    script.src = `${url}${separator}callback=${callbackName}`
+    // Use the URL as-is (API ignores callback parameter anyway)
+    script.src = url
 
     // Add script to document
     document.head.appendChild(script)
