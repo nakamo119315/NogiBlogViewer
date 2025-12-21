@@ -127,12 +127,12 @@ export function BlogContent({
       )}
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap gap-2 border-t border-gray-200 p-4 dark:border-gray-700">
+      <div className="grid grid-cols-2 gap-2 border-t border-gray-200 p-3 sm:flex sm:flex-wrap sm:p-4 dark:border-gray-700">
         {/* Comment Button */}
         {onCommentClick && (
           <button
             onClick={onCommentClick}
-            className="flex items-center gap-2 rounded-lg bg-nogi-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-nogi-600"
+            className="flex items-center justify-center gap-1.5 rounded-lg bg-nogi-500 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-nogi-600 sm:gap-2 sm:px-4 sm:text-sm"
           >
             <svg
               className="h-4 w-4"
@@ -147,7 +147,7 @@ export function BlogContent({
                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
               />
             </svg>
-            コメントする
+            <span>コメント</span>
           </button>
         )}
 
@@ -164,7 +164,7 @@ export function BlogContent({
         {!hasCommented && onMarkAsCommented && (
           <button
             onClick={onMarkAsCommented}
-            className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-green-100 hover:text-green-700 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-green-900/30 dark:hover:text-green-400"
+            className="flex items-center justify-center gap-1.5 rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-green-100 hover:text-green-700 sm:gap-2 sm:px-4 sm:text-sm dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-green-900/30 dark:hover:text-green-400"
           >
             <svg
               className="h-4 w-4"
@@ -179,7 +179,7 @@ export function BlogContent({
                 d="M5 13l4 4L19 7"
               />
             </svg>
-            コメント済みにする
+            <span className="hidden xs:inline">コメント</span>済み
           </button>
         )}
 
@@ -188,7 +188,7 @@ export function BlogContent({
           href={officialUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+          className="flex items-center justify-center gap-1.5 rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200 sm:gap-2 sm:px-4 sm:text-sm dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
         >
           <svg
             className="h-4 w-4"
@@ -203,7 +203,7 @@ export function BlogContent({
               d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
             />
           </svg>
-          公式サイトで見る
+          <span>公式サイト</span>
         </a>
       </div>
     </article>

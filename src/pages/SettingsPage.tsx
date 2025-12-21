@@ -55,20 +55,20 @@ export function SettingsPage() {
       </div>
 
       {/* Username Setting */}
-      <section className="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+      <section className="rounded-lg bg-white p-4 shadow-md sm:p-6 dark:bg-gray-800">
+        <h2 className="text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
           ユーザー名
         </h2>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <p className="mt-1 text-xs text-gray-500 sm:text-sm dark:text-gray-400">
           コメント時に使用する名前を設定できます
         </p>
-        <div className="mt-4 flex gap-3">
+        <div className="mt-3 flex gap-2 sm:mt-4 sm:gap-3">
           <input
             type="text"
             value={username}
             onChange={handleUsernameChange}
             placeholder="ニックネームを入力"
-            className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-nogi-500 focus:outline-none focus:ring-1 focus:ring-nogi-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-nogi-500 focus:outline-none focus:ring-1 focus:ring-nogi-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           />
           <Button
             variant="primary"
@@ -81,13 +81,13 @@ export function SettingsPage() {
       </section>
 
       {/* Comment History Stats */}
-      <section className="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+      <section className="rounded-lg bg-white p-4 shadow-md sm:p-6 dark:bg-gray-800">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
               コメント履歴
             </h2>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <p className="mt-1 text-xs text-gray-500 sm:text-sm dark:text-gray-400">
               これまでにコメントした投稿の記録
             </p>
           </div>
@@ -98,12 +98,12 @@ export function SettingsPage() {
             disabled={isLoadingApiComments}
           >
             {isLoadingApiComments ? (
-              <span className="flex items-center gap-2">
+              <span className="flex items-center gap-1">
                 <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                更新中
+                <span className="hidden sm:inline">更新中</span>
               </span>
             ) : (
               '更新'
@@ -189,43 +189,44 @@ export function SettingsPage() {
         )}
 
         {/* Manual comment count */}
-        <div className="mt-4 flex items-center justify-between">
-          <div className="text-sm text-gray-600 dark:text-gray-300">
-            手動で記録:
-            <span className="ml-1 text-lg font-bold text-nogi-600 dark:text-nogi-400">
-              {comments.length}
-            </span>
-            件
+        <div className="mt-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="text-sm text-gray-600 dark:text-gray-300">
+              手動で記録:
+              <span className="ml-1 text-lg font-bold text-nogi-600 dark:text-nogi-400">
+                {comments.length}
+              </span>
+              件
+            </div>
+            {comments.length > 0 && !showClearConfirm && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowClearConfirm(true)}
+              >
+                クリア
+              </Button>
+            )}
           </div>
-          {comments.length > 0 && (
-            <div className="relative">
-              {showClearConfirm ? (
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">本当に削除しますか？</span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowClearConfirm(false)}
-                  >
-                    キャンセル
-                  </Button>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={handleClearHistory}
-                  >
-                    削除
-                  </Button>
-                </div>
-              ) : (
+          {showClearConfirm && (
+            <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg bg-red-50 p-3 dark:bg-red-900/20">
+              <span className="text-sm text-red-600 dark:text-red-400">本当に削除しますか？</span>
+              <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setShowClearConfirm(true)}
+                  onClick={() => setShowClearConfirm(false)}
                 >
-                  手動履歴をクリア
+                  キャンセル
                 </Button>
-              )}
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleClearHistory}
+                >
+                  削除
+                </Button>
+              </div>
             </div>
           )}
         </div>
@@ -253,15 +254,15 @@ export function SettingsPage() {
       </section>
 
       {/* Favorites Stats */}
-      <section className="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+      <section className="rounded-lg bg-white p-4 shadow-md sm:p-6 dark:bg-gray-800">
+        <h2 className="text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
           お気に入り
         </h2>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <p className="mt-1 text-xs text-gray-500 sm:text-sm dark:text-gray-400">
           お気に入り登録しているメンバー
         </p>
-        <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
-          <span className="text-2xl font-bold text-pink-500">
+        <div className="mt-3 text-sm text-gray-600 sm:mt-4 dark:text-gray-300">
+          <span className="text-xl font-bold text-pink-500 sm:text-2xl">
             {preferences.favoriteMembers.length}
           </span>{' '}
           人のメンバーをお気に入り登録中
@@ -269,14 +270,14 @@ export function SettingsPage() {
       </section>
 
       {/* Reset All */}
-      <section className="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+      <section className="rounded-lg bg-white p-4 shadow-md sm:p-6 dark:bg-gray-800">
+        <h2 className="text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
           データのリセット
         </h2>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <p className="mt-1 text-xs text-gray-500 sm:text-sm dark:text-gray-400">
           すべての設定を初期状態に戻します
         </p>
-        <div className="mt-4">
+        <div className="mt-3 sm:mt-4">
           <Button variant="outline" onClick={handleResetPreferences}>
             設定をリセット
           </Button>
@@ -284,11 +285,11 @@ export function SettingsPage() {
       </section>
 
       {/* App Info */}
-      <section className="rounded-lg bg-gray-50 p-6 dark:bg-gray-800/50">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+      <section className="rounded-lg bg-gray-50 p-4 sm:p-6 dark:bg-gray-800/50">
+        <h2 className="text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
           このアプリについて
         </h2>
-        <div className="mt-4 space-y-2 text-sm text-gray-600 dark:text-gray-300">
+        <div className="mt-3 space-y-2 text-xs text-gray-600 sm:mt-4 sm:text-sm dark:text-gray-300">
           <p>NogiBlogViewer - 乃木坂46ブログビューワー</p>
           <p>
             このアプリは非公式のファンアプリです。乃木坂46公式とは一切関係ありません。
