@@ -13,12 +13,14 @@ export function SettingsPage() {
   const {
     comments,
     apiCommentedPostIds,
+    apiUserComments,
     clearAll: clearCommentHistory,
     refresh: refreshComments,
     isLoadingApiComments,
   } = useCommentHistory()
   const [username, setUsername] = useState(preferences.username)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
+  const [showApiComments, setShowApiComments] = useState(false)
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(e.target.value)
@@ -111,23 +113,56 @@ export function SettingsPage() {
         {/* API-detected comments */}
         {preferences.username && (
           <div className="mt-4 rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
-            <div className="flex items-center gap-2">
-              <svg className="h-5 w-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span className="font-medium text-green-700 dark:text-green-300">
-                公式APIから検出
-              </span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <svg className="h-5 w-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span className="font-medium text-green-700 dark:text-green-300">
+                  公式APIから検出
+                </span>
+              </div>
+              {apiUserComments.length > 0 && (
+                <button
+                  onClick={() => setShowApiComments(!showApiComments)}
+                  className="text-sm text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                >
+                  {showApiComments ? '閉じる' : 'コメント一覧を見る'}
+                </button>
+              )}
             </div>
             <p className="mt-2 text-sm text-green-600 dark:text-green-400">
               「{preferences.username}」として
               <span className="mx-1 text-lg font-bold">{apiCommentedPostIds.length}</span>
-              件の投稿にコメントしています
+              件の投稿に
+              <span className="mx-1 text-lg font-bold">{apiUserComments.length}</span>
+              件のコメントをしています
             </p>
             {isLoadingApiComments && (
               <p className="mt-1 text-xs text-green-500 dark:text-green-500">
-                コメントを確認中...
+                コメントを確認中（最大1万件を検索）...
               </p>
+            )}
+
+            {/* API Comment List */}
+            {showApiComments && apiUserComments.length > 0 && (
+              <div className="mt-4 max-h-96 overflow-y-auto rounded-lg border border-green-200 bg-white dark:border-green-800 dark:bg-gray-800">
+                {apiUserComments.map((comment, index) => (
+                  <div
+                    key={`${comment.commentId}-${index}`}
+                    className="border-b border-green-100 p-3 last:border-b-0 dark:border-green-900"
+                  >
+                    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                      <span>投稿ID: {comment.postId}</span>
+                      <span>{comment.date}</span>
+                    </div>
+                    <div
+                      className="mt-1 text-sm text-gray-700 dark:text-gray-300"
+                      dangerouslySetInnerHTML={{ __html: comment.body }}
+                    />
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         )}

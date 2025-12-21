@@ -14,6 +14,7 @@ import {
 import {
   getCommentedPostIdsByUsername,
   refreshCommentedPosts,
+  type UserComment,
 } from '../services/commentCheckService'
 import { useAppContext } from '../store/AppContext'
 
@@ -24,6 +25,8 @@ interface UseCommentHistoryResult {
   commentedPostIds: string[]
   /** List of API-detected commented post IDs */
   apiCommentedPostIds: string[]
+  /** List of API-detected user comments with details */
+  apiUserComments: UserComment[]
   /** Check if a post has been commented on */
   isCommented: (postId: string) => boolean
   /** Mark a post as commented */
@@ -42,6 +45,7 @@ export function useCommentHistory(): UseCommentHistoryResult {
   const [comments, setComments] = useState<CommentRecord[]>([])
   const [manualCommentedPostIds, setManualCommentedPostIds] = useState<string[]>([])
   const [apiCommentedPostIds, setApiCommentedPostIds] = useState<string[]>([])
+  const [apiUserComments, setApiUserComments] = useState<UserComment[]>([])
   const [isLoadingApiComments, setIsLoadingApiComments] = useState(false)
 
   const { preferences } = useAppContext()
@@ -58,13 +62,15 @@ export function useCommentHistory(): UseCommentHistoryResult {
   const loadApiComments = useCallback(async () => {
     if (!username) {
       setApiCommentedPostIds([])
+      setApiUserComments([])
       return
     }
 
     setIsLoadingApiComments(true)
     try {
-      const postIds = await getCommentedPostIdsByUsername(username)
-      setApiCommentedPostIds(postIds)
+      const result = await getCommentedPostIdsByUsername(username)
+      setApiCommentedPostIds(result.postIds)
+      setApiUserComments(result.comments)
     } catch (error) {
       console.error('Failed to load API comments:', error)
     } finally {
@@ -124,8 +130,9 @@ export function useCommentHistory(): UseCommentHistoryResult {
     if (username) {
       setIsLoadingApiComments(true)
       try {
-        const postIds = await refreshCommentedPosts(username)
-        setApiCommentedPostIds(postIds)
+        const result = await refreshCommentedPosts(username)
+        setApiCommentedPostIds(result.postIds)
+        setApiUserComments(result.comments)
       } finally {
         setIsLoadingApiComments(false)
       }
@@ -137,6 +144,7 @@ export function useCommentHistory(): UseCommentHistoryResult {
       comments,
       commentedPostIds,
       apiCommentedPostIds,
+      apiUserComments,
       isCommented,
       markAsCommented,
       removeComment,
@@ -148,6 +156,7 @@ export function useCommentHistory(): UseCommentHistoryResult {
       comments,
       commentedPostIds,
       apiCommentedPostIds,
+      apiUserComments,
       isCommented,
       markAsCommented,
       removeComment,
