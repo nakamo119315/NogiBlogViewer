@@ -1,0 +1,41 @@
+{
+  "count": "3",
+  "data": [
+    {
+      "code": "55815",
+      "name": "遠藤さくら",
+      "englishName": "Sakura Endo",
+      "kana": "えんどうさくら",
+      "generation": "4期生",
+      "profileImage": "https://www.nogizaka46.com/files/46/assets/img/member/4/55815.png",
+      "profileLink": "/s/n46/artist/55815",
+      "birthday": "2001/10/03",
+      "bloodType": "B",
+      "isGraduated": false
+    },
+    {
+      "code": "55817",
+      "name": "賀喜遥香",
+      "englishName": "Haruka Kaki",
+      "kana": "かきはるか",
+      "generation": "4期生",
+      "profileImage": "https://www.nogizaka46.com/files/46/assets/img/member/4/55817.png",
+      "profileLink": "/s/n46/artist/55817",
+      "birthday": "2001/08/08",
+      "bloodType": "A",
+      "isGraduated": false
+    },
+    {
+      "code": "55821",
+      "name": "久保史緒里",
+      "englishName": "Shiori Kubo",
+      "kana": "くぼしおり",
+      "generation": "3期生",
+      "profileImage": "https://www.nogizaka46.com/files/46/assets/img/member/3/55821.png",
+      "profileLink": "/s/n46/artist/55821",
+      "birthday": "2001/07/14",
+      "bloodType": "O",
+      "isGraduated": false
+    }
+  ]
+}

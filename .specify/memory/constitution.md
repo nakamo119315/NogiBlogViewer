@@ -1,50 +1,165 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+SYNC IMPACT REPORT
+==================
+Version change: 0.0.0 → 1.0.0 (MAJOR - Initial constitution)
+Modified principles: N/A (initial version)
+Added sections:
+  - Core Principles (5 principles tailored for GitHub Pages frontend-only)
+  - Technical Constraints (GitHub Pages specific)
+  - Development Workflow
+  - Governance
+Removed sections: N/A
+Templates requiring updates:
+  - .specify/templates/plan-template.md ✅ (compatible - uses generic structure)
+  - .specify/templates/spec-template.md ✅ (compatible - technology agnostic)
+  - .specify/templates/tasks-template.md ✅ (compatible - single project option applies)
+  - .specify/templates/checklist-template.md ✅ (compatible - generic structure)
+  - .specify/templates/agent-file-template.md ✅ (compatible - project agnostic)
+Follow-up TODOs: None
+==================
+-->
+
+# NogiBlogViewer Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Static-First Architecture
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+All features MUST be implementable as static assets deployable to GitHub Pages.
+No server-side code, databases, or backend services are permitted in production.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+**Rules**:
+- All data MUST be fetched from public APIs or embedded as static JSON/JS files
+- Dynamic functionality MUST use client-side JavaScript only
+- Build outputs MUST consist solely of HTML, CSS, JavaScript, and static assets
+- No server-side rendering (SSR) that requires a Node.js runtime in production
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+**Rationale**: GitHub Pages only serves static files. Any server-side requirement
+would break deployment compatibility.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### II. Zero Backend Dependencies
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+The application MUST function without any backend infrastructure owned or
+managed by this project.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+**Rules**:
+- External APIs (if used) MUST be public and require no authentication secrets
+  stored server-side
+- All API keys or tokens (if any) MUST be safe for client-side exposure or use
+  environment variables only at build time
+- No WebSocket connections to self-hosted servers
+- No database connections (use localStorage, IndexedDB, or external services
+  with client-safe authentication)
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+**Rationale**: GitHub Pages cannot run backend code. All dynamic behavior must
+originate from the client or external public services.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### III. Build-Time Data Processing
+
+Data transformations and content generation MUST occur at build time, not runtime,
+whenever possible.
+
+**Rules**:
+- Content that can be pre-computed MUST be generated during the build process
+- Build scripts MAY use Node.js or other tools, but outputs MUST be static
+- CI/CD pipelines SHOULD handle data fetching and static file generation
+- Runtime API calls SHOULD be limited to truly dynamic data that cannot be
+  pre-fetched
+
+**Rationale**: Pre-processing reduces client-side complexity, improves
+performance, and ensures content availability without runtime dependencies.
+
+### IV. Progressive Enhancement
+
+The application MUST provide core functionality even when JavaScript fails or
+is disabled.
+
+**Rules**:
+- Critical content SHOULD be present in initial HTML where feasible
+- JavaScript MUST enhance, not gate, access to primary content
+- Loading states and error boundaries MUST be implemented for async operations
+- Offline functionality SHOULD be considered via service workers where appropriate
+
+**Rationale**: Ensures accessibility, improves SEO, and provides resilience
+against JavaScript failures.
+
+### V. Simplicity Over Complexity
+
+Favor minimal tooling and straightforward implementations over complex build
+systems or abstractions.
+
+**Rules**:
+- Dependencies MUST be justified by clear necessity; avoid "nice to have" packages
+- Build configuration SHOULD be minimal and well-documented
+- Prefer vanilla solutions when framework features add marginal value
+- Avoid over-engineering: implement what is needed now, not hypothetical futures
+
+**Rationale**: Simpler systems are easier to maintain, debug, and contribute to.
+GitHub Pages projects benefit from reduced complexity.
+
+## Technical Constraints
+
+**Target Platform**: GitHub Pages (static hosting)
+**Allowed Technologies**:
+- HTML5, CSS3, JavaScript (ES6+)
+- Static site generators (e.g., Jekyll, Hugo, Astro, Next.js static export)
+- Client-side frameworks (e.g., React, Vue, Svelte) with static build output
+- Build tools (e.g., Vite, Webpack, Parcel) that produce static bundles
+
+**Prohibited in Production**:
+- Server-side runtimes (Node.js, Python, Ruby, etc.)
+- Databases (PostgreSQL, MongoDB, etc.)
+- Server-side APIs or middleware
+- Docker containers or serverless functions
+
+**External Services** (permitted with client-safe auth only):
+- Public REST/GraphQL APIs
+- Third-party CDNs for assets
+- Analytics services (client-side only)
+- Authentication providers with client-side SDKs (e.g., Firebase Auth)
+
+## Development Workflow
+
+**Local Development**:
+- MUST support `npm run dev` or equivalent for local preview
+- Hot reload SHOULD be available for rapid iteration
+- Local server MAY use Node.js; this does not violate Static-First as it is
+  development-only
+
+**Build Process**:
+- `npm run build` or equivalent MUST produce a deployable `dist/` or `out/` folder
+- Build output MUST be committable to `gh-pages` branch or usable via GitHub Actions
+- Build MUST fail if server-side code is detected in production bundle
+
+**Deployment**:
+- Primary deployment target: GitHub Pages
+- Deployment MUST be automated via GitHub Actions or manual branch push
+- Custom domains SHOULD be configured via CNAME file in output
+
+**Testing**:
+- Unit tests SHOULD cover critical business logic
+- End-to-end tests SHOULD verify deployment compatibility
+- Lighthouse or similar SHOULD be used to validate performance
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution establishes the foundational principles for NogiBlogViewer.
+All development decisions MUST align with these principles.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Amendment Process**:
+1. Proposed changes MUST be documented with rationale
+2. Changes affecting Core Principles require explicit approval
+3. All amendments MUST update the version number and Last Amended date
+4. Dependent templates MUST be reviewed for consistency after amendments
+
+**Versioning Policy**:
+- MAJOR: Removing or fundamentally changing a Core Principle
+- MINOR: Adding new principles or sections, significant expansions
+- PATCH: Clarifications, typo fixes, non-semantic changes
+
+**Compliance**:
+- All pull requests MUST be verified against Core Principles
+- Violations MUST be documented and justified in Complexity Tracking
+- Regular reviews SHOULD ensure ongoing alignment
+
+**Version**: 1.0.0 | **Ratified**: 2025-12-21 | **Last Amended**: 2025-12-21

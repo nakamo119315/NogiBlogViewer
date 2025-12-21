@@ -1,0 +1,41 @@
+{
+  "count": "3",
+  "data": [
+    {
+      "id": "104199",
+      "title": "サンプルブログ1",
+      "content": "<p>これはサンプルのブログ記事です。</p><p>画像も含まれています。</p>",
+      "thumbnail": "https://www.nogizaka46.com/files/46/diary/n46/member/moblog/202512/sample1.jpg",
+      "publishedAt": "2025-12-20T17:18:00.000Z",
+      "link": "/s/n46/diary/detail/104199",
+      "memberId": "55815",
+      "memberName": "遠藤さくら",
+      "memberImage": "https://www.nogizaka46.com/files/46/assets/img/member/4/55815.png",
+      "images": []
+    },
+    {
+      "id": "104198",
+      "title": "サンプルブログ2",
+      "content": "<p>2番目のサンプル記事です。</p>",
+      "thumbnail": "https://www.nogizaka46.com/files/46/diary/n46/member/moblog/202512/sample2.jpg",
+      "publishedAt": "2025-12-19T12:00:00.000Z",
+      "link": "/s/n46/diary/detail/104198",
+      "memberId": "55817",
+      "memberName": "賀喜遥香",
+      "memberImage": "https://www.nogizaka46.com/files/46/assets/img/member/4/55817.png",
+      "images": []
+    },
+    {
+      "id": "104197",
+      "title": "サンプルブログ3",
+      "content": "<p>3番目のサンプル記事です。</p>",
+      "thumbnail": "https://www.nogizaka46.com/files/46/diary/n46/member/moblog/202512/sample3.jpg",
+      "publishedAt": "2025-12-18T10:30:00.000Z",
+      "link": "/s/n46/diary/detail/104197",
+      "memberId": "55821",
+      "memberName": "久保史緒里",
+      "memberImage": "https://www.nogizaka46.com/files/46/assets/img/member/3/55821.png",
+      "images": []
+    }
+  ]
+}

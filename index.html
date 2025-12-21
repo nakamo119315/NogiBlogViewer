@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- Basic Meta -->
+    <title>NogiBlogViewer - 乃木坂46ブログビューワー</title>
+    <meta name="description" content="乃木坂46メンバーのブログを快適に閲覧できるビューワーアプリ。お気に入り登録、コメント追跡、画像一括ダウンロードなどの機能を搭載。" />
+    <meta name="keywords" content="乃木坂46, ブログ, ビューワー, アイドル" />
+    <meta name="author" content="NogiBlogViewer" />
+
+    <!-- Open Graph / SNS -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="NogiBlogViewer - 乃木坂46ブログビューワー" />
+    <meta property="og:description" content="乃木坂46メンバーのブログを快適に閲覧できるビューワーアプリ" />
+    <meta property="og:url" content="https://nakamotoshunsuke.github.io/NogiBlogViewer/" />
+    <meta property="og:site_name" content="NogiBlogViewer" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="NogiBlogViewer" />
+    <meta name="twitter:description" content="乃木坂46メンバーのブログを快適に閲覧できるビューワーアプリ" />
+
+    <!-- PWA / Mobile -->
+    <meta name="theme-color" content="#d946ef" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="NogiBlogViewer" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/NogiBlogViewer/favicon.svg" />
+    <link rel="apple-touch-icon" href="/NogiBlogViewer/apple-touch-icon.png" />
+
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://www.nogizaka46.com" />
+    <link rel="dns-prefetch" href="https://www.nogizaka46.com" />
+
+    <!-- Loading Styles -->
+    <style>
+      #loading-screen {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #fdf4ff 0%, #f5d0fe 100%);
+        z-index: 9999;
+        transition: opacity 0.3s ease-out;
+      }
+
+      #loading-screen.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .loading-spinner {
+        width: 48px;
+        height: 48px;
+        border: 4px solid #f0abfc;
+        border-top-color: #d946ef;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      .loading-text {
+        margin-top: 16px;
+        font-family: system-ui, sans-serif;
+        font-size: 14px;
+        color: #86198f;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      @media (prefers-color-scheme: dark) {
+        #loading-screen {
+          background: linear-gradient(135deg, #1f1f1f 0%, #2d1f2d 100%);
+        }
+        .loading-spinner {
+          border-color: #4a3a4a;
+          border-top-color: #d946ef;
+        }
+        .loading-text {
+          color: #f0abfc;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">読み込み中...</p>
+    </div>
+
+    <!-- App Root -->
+    <div id="root"></div>
+
+    <!-- Hide loading screen after app loads -->
+    <script>
+      window.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+          var loadingScreen = document.getElementById('loading-screen');
+          if (loadingScreen) {
+            loadingScreen.classList.add('hidden');
+            setTimeout(function() {
+              loadingScreen.remove();
+            }, 300);
+          }
+        }, 100);
+      });
+    </script>
+
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
