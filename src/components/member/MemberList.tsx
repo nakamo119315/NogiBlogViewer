@@ -59,11 +59,13 @@ export function MemberList({
             className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm focus:border-nogi-500 focus:outline-none focus:ring-1 focus:ring-nogi-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           >
             <option value="">全期生</option>
-            {generations.map((gen) => (
-              <option key={gen} value={gen}>
-                {gen}
-              </option>
-            ))}
+            {generations
+              .filter((gen) => gen && gen.trim() !== '')
+              .map((gen) => (
+                <option key={gen} value={gen}>
+                  {gen}
+                </option>
+              ))}
           </select>
         )}
 
