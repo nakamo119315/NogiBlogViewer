@@ -130,3 +130,86 @@ export function generateZipFilename(memberName: string, postTitle: string): stri
   const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, '')
   return `${cleanMemberName}_${cleanTitle}_${timestamp}.zip`
 }
+
+/**
+ * Check if the device is mobile
+ */
+export function isMobileDevice(): boolean {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  )
+}
+
+/**
+ * Share images using Web Share API (for mobile - allows saving to Photos)
+ */
+export async function shareImages(
+  imageUrls: string[],
+  title: string,
+  onProgress?: ProgressCallback
+): Promise<{ success: boolean; shared: number; failed: number }> {
+  if (!navigator.share) {
+    return { success: false, shared: 0, failed: imageUrls.length }
+  }
+
+  let shared = 0
+  let failed = 0
+
+  const updateProgress = () => {
+    if (onProgress) {
+      onProgress({
+        total: imageUrls.length,
+        completed: shared,
+        failed,
+        percentage: Math.round(((shared + failed) / imageUrls.length) * 100),
+      })
+    }
+  }
+
+  updateProgress()
+
+  // Fetch all images first
+  const files: File[] = []
+  for (let i = 0; i < imageUrls.length; i++) {
+    try {
+      const response = await fetch(imageUrls[i], { mode: 'cors' })
+      if (response.ok) {
+        const blob = await response.blob()
+        const ext = imageUrls[i].match(/\.(jpg|jpeg|png|gif|webp)$/i)?.[1] || 'jpg'
+        const file = new File([blob], `image_${i + 1}.${ext}`, { type: blob.type })
+        files.push(file)
+        shared++
+      } else {
+        failed++
+      }
+    } catch {
+      failed++
+    }
+    updateProgress()
+  }
+
+  if (files.length === 0) {
+    return { success: false, shared: 0, failed: imageUrls.length }
+  }
+
+  // Check if we can share files
+  if (navigator.canShare && navigator.canShare({ files })) {
+    try {
+      await navigator.share({
+        title,
+        files,
+      })
+      return { success: true, shared: files.length, failed }
+    } catch (error) {
+      // User cancelled or share failed
+      if ((error as Error).name === 'AbortError') {
+        // User cancelled - still count as success since images were prepared
+        return { success: true, shared: files.length, failed }
+      }
+      console.error('Share failed:', error)
+      return { success: false, shared: 0, failed: imageUrls.length }
+    }
+  }
+
+  return { success: false, shared: 0, failed: imageUrls.length }
+}

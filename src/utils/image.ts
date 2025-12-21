@@ -78,6 +78,22 @@ export function isImageUrl(url: string): boolean {
 }
 
 /**
+ * Process HTML content to normalize all image URLs
+ * @param htmlContent - HTML string containing img tags
+ * @returns HTML string with normalized image URLs
+ */
+export function normalizeHtmlImageUrls(htmlContent: string): string {
+  // Replace src attributes in img tags
+  return htmlContent.replace(
+    /(<img[^>]+src=["'])([^"']+)(["'][^>]*>)/gi,
+    (_match, prefix, src, suffix) => {
+      const normalizedSrc = normalizeImageUrl(src)
+      return `${prefix}${normalizedSrc}${suffix}`
+    }
+  )
+}
+
+/**
  * Create placeholder image URL
  * @param width - Image width
  * @param height - Image height

@@ -2,9 +2,11 @@
  * BlogContent component - displays full blog post content
  */
 
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import type { BlogPost } from '../../types/api'
 import { formatDateTime } from '../../utils/date'
+import { normalizeHtmlImageUrls } from '../../utils/image'
 import { BlogImage } from './BlogImage'
 import { DownloadButton } from './DownloadButton'
 import { API_ENDPOINTS } from '../../types/api'
@@ -21,6 +23,12 @@ export function BlogContent({
   hasCommented = false,
   onCommentClick,
 }: BlogContentProps) {
+  // Normalize image URLs in content
+  const processedContent = useMemo(
+    () => normalizeHtmlImageUrls(blog.content),
+    [blog.content]
+  )
+
   // Build official blog URL
   const officialUrl = blog.link.startsWith('http')
     ? blog.link
@@ -95,7 +103,7 @@ export function BlogContent({
       {/* Content */}
       <div
         className="prose prose-sm max-w-none p-4 dark:prose-invert prose-img:rounded-lg prose-img:mx-auto"
-        dangerouslySetInnerHTML={{ __html: blog.content }}
+        dangerouslySetInnerHTML={{ __html: processedContent }}
       />
 
       {/* Images Gallery */}
