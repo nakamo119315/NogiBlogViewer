@@ -76,6 +76,8 @@ export function getStaticMembers(): Member[] {
  */
 export async function fetchGenerations(): Promise<string[]> {
   const members = await fetchMembers()
-  const generations = new Set(members.map((m) => m.generation))
+  const generations = new Set(
+    members.map((m) => m.generation).filter((g) => g && g.trim() !== '')
+  )
   return Array.from(generations).sort()
 }

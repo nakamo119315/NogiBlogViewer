@@ -76,8 +76,10 @@ export function useMemberData(
         const staticData = getStaticMembers()
         setMembers(filterMembers(staticData))
 
-        // Extract generations from static data
-        const staticGenerations = new Set(staticData.map((m) => m.generation))
+        // Extract generations from static data (filter out empty values)
+        const staticGenerations = new Set(
+          staticData.map((m) => m.generation).filter((g) => g && g.trim() !== '')
+        )
         setGenerations(Array.from(staticGenerations).sort())
 
         // Then fetch fresh data from API
