@@ -5,6 +5,7 @@ import { MemberPage } from './pages/MemberPage'
 import { BlogPostPage } from './pages/BlogPostPage'
 import { FavoritesPage } from './pages/FavoritesPage'
 import { SettingsPage } from './pages/SettingsPage'
+import { StatsPage } from './pages/StatsPage'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/member/:memberId" element={<MemberPage />} />
         <Route path="/blog/:blogId" element={<BlogPostPage />} />
         <Route path="/favorites" element={<FavoritesPage />} />
+        <Route path="/stats" element={<StatsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Routes>
     </Layout>

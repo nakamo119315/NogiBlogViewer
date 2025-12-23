@@ -8,6 +8,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { to: '/', label: 'ホーム', icon: '🏠' },
+  { to: '/stats', label: '統計', icon: '📊' },
   { to: '/favorites', label: 'お気に入り', icon: '⭐' },
   { to: '/settings', label: '設定', icon: '⚙️' },
 ]
