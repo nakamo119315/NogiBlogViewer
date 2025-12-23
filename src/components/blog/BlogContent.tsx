@@ -14,14 +14,18 @@ import { API_ENDPOINTS } from '../../types/api'
 interface BlogContentProps {
   blog: BlogPost
   hasCommented?: boolean
+  isBookmarked?: boolean
   onCommentClick?: () => void
   onDownloadClick?: () => void
+  onBookmarkToggle?: () => void
 }
 
 export function BlogContent({
   blog,
   hasCommented = false,
+  isBookmarked = false,
   onCommentClick,
+  onBookmarkToggle,
 }: BlogContentProps) {
   // Normalize image URLs in content
   const processedContent = useMemo(
@@ -156,6 +160,33 @@ export function BlogContent({
             memberName={blog.memberName}
             postTitle={blog.title}
           />
+        )}
+
+        {/* Bookmark Button */}
+        {onBookmarkToggle && (
+          <button
+            onClick={onBookmarkToggle}
+            className={`flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors sm:gap-2 sm:px-4 sm:text-sm ${
+              isBookmarked
+                ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:hover:bg-yellow-900/50'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+            }`}
+          >
+            <svg
+              className="h-4 w-4"
+              fill={isBookmarked ? 'currentColor' : 'none'}
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+              />
+            </svg>
+            <span>{isBookmarked ? '保存済み' : '保存'}</span>
+          </button>
         )}
 
         {/* Official Site Link */}

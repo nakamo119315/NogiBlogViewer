@@ -221,7 +221,28 @@ export const STORAGE_KEYS = {
   COMMENTS: 'nogiblog_comments',
   CACHE: 'nogiblog_cache',
   MEMBER_VISITS: 'nogiblog_member_visits',
+  BOOKMARKS: 'nogiblog_bookmarks',
 } as const;
+
+/**
+ * Bookmarked post for offline reading
+ */
+export interface BookmarkedPost {
+  /** Blog post ID */
+  id: string;
+  /** Post title */
+  title: string;
+  /** Author member name */
+  memberName: string;
+  /** Author member code */
+  memberCode: string;
+  /** Publication date (ISO string) */
+  publishedAt: string;
+  /** When the post was bookmarked (ISO string) */
+  bookmarkedAt: string;
+  /** Thumbnail image URL */
+  thumbnail: string;
+}
 
 // ============================================================================
 // Default Values
