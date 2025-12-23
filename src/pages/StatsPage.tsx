@@ -10,6 +10,7 @@ import {
   sortMemberStats,
 } from '../hooks/useAllMembersStatistics'
 import { MemberRankingList } from '../components/stats/MemberRankingList'
+import { MemberPostsChart } from '../components/stats/MemberPostsChart'
 import { OverallChart } from '../components/stats/OverallChart'
 import { Loading } from '../components/common/Loading'
 
@@ -24,10 +25,6 @@ export function StatsPage() {
   // Pre-sorted rankings
   const byTotalPosts = useMemo(
     () => sortMemberStats(stats.members, 'totalPosts'),
-    [stats.members]
-  )
-  const byPostsPerMonth = useMemo(
-    () => sortMemberStats(stats.members, 'postsPerMonth'),
     [stats.members]
   )
   const byLastPostDate = useMemo(
@@ -74,18 +71,15 @@ export function StatsPage() {
       {/* Overall Chart */}
       <OverallChart data={stats.monthlyDistribution} />
 
+      {/* Member Posts Chart */}
+      <MemberPostsChart members={stats.members} />
+
       {/* Rankings */}
       <div className="space-y-4">
         <MemberRankingList
           members={byTotalPosts}
           title="投稿数ランキング"
           sortBy="totalPosts"
-        />
-
-        <MemberRankingList
-          members={byPostsPerMonth}
-          title="更新頻度ランキング"
-          sortBy="postsPerMonth"
         />
 
         <MemberRankingList
