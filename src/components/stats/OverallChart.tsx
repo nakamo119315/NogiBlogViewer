@@ -28,7 +28,7 @@ interface OverallChartProps {
 }
 
 export function OverallChart({ data, title = '月別投稿数' }: OverallChartProps) {
-  // Show last 12 months
+  // Show last 12 entries
   const displayData = data.slice(-12)
 
   const chartData = {
@@ -101,7 +101,7 @@ export function OverallChart({ data, title = '月別投稿数' }: OverallChartPr
       <div className="border-b border-gray-100 px-4 py-3 dark:border-gray-700">
         <h3 className="font-semibold text-gray-900 dark:text-white">{title}</h3>
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          全メンバー合計（直近12ヶ月）
+          全メンバー合計
         </p>
       </div>
       <div className="p-4">
