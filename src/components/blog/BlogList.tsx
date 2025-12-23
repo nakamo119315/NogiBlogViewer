@@ -14,6 +14,7 @@ interface BlogListProps {
   commentedPostIds?: string[]
   showMemberInfo?: boolean
   onLoadMore?: () => void
+  lastVisitDate?: Date | null
 }
 
 export function BlogList({
@@ -23,6 +24,7 @@ export function BlogList({
   commentedPostIds = [],
   showMemberInfo = true,
   onLoadMore,
+  lastVisitDate,
 }: BlogListProps) {
   if (isLoading && blogs.length === 0) {
     return <Loading text="ブログを読み込み中..." />
@@ -61,6 +63,7 @@ export function BlogList({
             blog={blog}
             hasCommented={commentedPostIds.includes(blog.id)}
             showMemberInfo={showMemberInfo}
+            isNew={lastVisitDate ? blog.publishedAt > lastVisitDate : false}
           />
         ))}
       </div>

@@ -191,6 +191,14 @@ export interface CachedData {
   lastUpdated: Date;
 }
 
+/**
+ * Member visit history for tracking new articles
+ */
+export interface MemberVisitHistory {
+  /** Map of member ID to last visit timestamp (ISO string) */
+  [memberId: string]: string;
+}
+
 // ============================================================================
 // LocalStorage Schema
 // ============================================================================
@@ -202,6 +210,7 @@ export interface LocalStorageSchema {
   nogiblog_preferences: UserPreferences;
   nogiblog_comments: CommentRecord[];
   nogiblog_cache: CachedData;
+  nogiblog_member_visits: MemberVisitHistory;
 }
 
 /**
@@ -211,6 +220,7 @@ export const STORAGE_KEYS = {
   PREFERENCES: 'nogiblog_preferences',
   COMMENTS: 'nogiblog_comments',
   CACHE: 'nogiblog_cache',
+  MEMBER_VISITS: 'nogiblog_member_visits',
 } as const;
 
 // ============================================================================

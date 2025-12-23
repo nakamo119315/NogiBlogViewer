@@ -2,11 +2,17 @@
  * MemberPage - 特定メンバーのブログ一覧を表示するページ
  */
 
+import { useEffect, useMemo } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { BlogList } from '../components/blog/BlogList'
+import { BlogStatistics } from '../components/blog/BlogStatistics'
+import { DateRangeFilter } from '../components/blog/DateRangeFilter'
 import { useBlogData } from '../hooks/useBlogData'
 import { useMember } from '../hooks/useMemberData'
 import { useCommentHistory } from '../hooks/useCommentHistory'
+import { useMemberVisitHistory } from '../hooks/useMemberVisitHistory'
+import { useDateFilter } from '../hooks/useDateFilter'
+import { useBlogStatistics } from '../hooks/useBlogStatistics'
 import { Loading } from '../components/common/Loading'
 import { useAppContext } from '../store/AppContext'
 
@@ -21,6 +27,38 @@ export function MemberPage() {
   } = useBlogData({ memberCode: memberId })
   const { preferences, toggleFavorite } = useAppContext()
   const { commentedPostIds } = useCommentHistory()
+
+  // New feature hooks
+  const { getLastVisit, recordVisit } = useMemberVisitHistory()
+  const {
+    fromDate,
+    toDate,
+    setFromDate,
+    setToDate,
+    clearFilter,
+    filterBlogs,
+    isFiltered,
+  } = useDateFilter()
+
+  // Get last visit date before recording new visit
+  const lastVisitDate = memberId ? getLastVisit(memberId) : null
+
+  // Record visit when page loads
+  useEffect(() => {
+    if (memberId) {
+      // Small delay to ensure last visit is captured first
+      const timer = setTimeout(() => {
+        recordVisit(memberId)
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [memberId, recordVisit])
+
+  // Filter blogs by date range
+  const filteredBlogs = useMemo(() => filterBlogs(blogs), [blogs, filterBlogs])
+
+  // Calculate statistics from all blogs (not filtered)
+  const stats = useBlogStatistics(blogs)
 
   const isFavorite = member
     ? preferences.favoriteMembers.includes(member.code)
@@ -123,18 +161,41 @@ export function MemberPage() {
         </div>
       </div>
 
+      {/* Statistics Section */}
+      <BlogStatistics stats={stats} isLoading={isBlogsLoading} />
+
       {/* Blog List */}
-      <div>
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
-          ブログ投稿
-        </h2>
+      <div className="space-y-4">
+        {/* Date Filter */}
+        <DateRangeFilter
+          fromDate={fromDate}
+          toDate={toDate}
+          onFromDateChange={setFromDate}
+          onToDateChange={setToDate}
+          onClear={clearFilter}
+          isFiltered={isFiltered}
+        />
+
+        {/* Blog List Header */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            ブログ投稿
+          </h2>
+          {isFiltered && (
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {filteredBlogs.length}件 / {blogs.length}件
+            </span>
+          )}
+        </div>
+
         <BlogList
-          blogs={blogs}
+          blogs={filteredBlogs}
           isLoading={isBlogsLoading}
-          hasMore={hasMore}
+          hasMore={hasMore && !isFiltered}
           commentedPostIds={commentedPostIds}
           showMemberInfo={false}
           onLoadMore={loadMore}
+          lastVisitDate={lastVisitDate}
         />
       </div>
     </div>

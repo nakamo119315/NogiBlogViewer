@@ -139,6 +139,68 @@ body {
 }
 
 /* ============================================
+   React DatePicker Styles
+   ============================================ */
+
+.react-datepicker {
+  @apply rounded-lg border-gray-200 bg-white font-sans shadow-lg dark:border-gray-600 dark:bg-gray-800;
+}
+
+.react-datepicker__header {
+  @apply border-b border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-700;
+}
+
+.react-datepicker__current-month {
+  @apply font-semibold text-gray-900 dark:text-white;
+}
+
+.react-datepicker__day-name {
+  @apply text-gray-500 dark:text-gray-400;
+}
+
+.react-datepicker__day {
+  @apply text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  @apply bg-nogi-500 text-white hover:bg-nogi-600;
+}
+
+.react-datepicker__day--in-range {
+  @apply bg-nogi-100 text-nogi-700 dark:bg-nogi-900 dark:text-nogi-300;
+}
+
+.react-datepicker__day--in-selecting-range {
+  @apply bg-nogi-200 dark:bg-nogi-800;
+}
+
+.react-datepicker__day--range-start,
+.react-datepicker__day--range-end {
+  @apply bg-nogi-500 text-white;
+}
+
+.react-datepicker__day--disabled {
+  @apply text-gray-300 hover:bg-transparent dark:text-gray-600;
+}
+
+.react-datepicker__day--today {
+  @apply font-bold;
+}
+
+.react-datepicker__navigation-icon::before {
+  @apply border-gray-400 dark:border-gray-500;
+}
+
+.react-datepicker__navigation:hover *::before {
+  @apply border-gray-600 dark:border-gray-300;
+}
+
+.react-datepicker__close-icon::after {
+  @apply bg-gray-400 hover:bg-gray-600;
+}
+
+/* ============================================
    Responsive Breakpoints Reference
    ============================================
    sm: 640px   - Small tablets

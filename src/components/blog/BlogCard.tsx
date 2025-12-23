@@ -10,12 +10,14 @@ interface BlogCardProps {
   blog: BlogPost
   hasCommented?: boolean
   showMemberInfo?: boolean
+  isNew?: boolean
 }
 
 export function BlogCard({
   blog,
   hasCommented = false,
   showMemberInfo = true,
+  isNew = false,
 }: BlogCardProps) {
   return (
     <Link
@@ -61,6 +63,13 @@ export function BlogCard({
                 />
               </svg>
               コメント済
+            </div>
+          )}
+
+          {/* NEW Badge */}
+          {isNew && (
+            <div className="absolute right-2 top-2 rounded bg-nogi-500 px-2 py-0.5 text-xs font-bold text-white">
+              NEW
             </div>
           )}
         </div>
