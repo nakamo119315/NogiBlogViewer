@@ -9,7 +9,7 @@ import App from './App.tsx'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
-      <BrowserRouter basename="/NogiBlogViewer">
+      <BrowserRouter>
         <AppProvider>
           <App />
         </AppProvider>
