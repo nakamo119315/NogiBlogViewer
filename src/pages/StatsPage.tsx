@@ -57,12 +57,12 @@ export function StatsPage() {
           </h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             全メンバーのブログ投稿統計
-            {cacheAgeMinutes !== null && (
-              <span className="ml-1">
-                ({cacheAgeMinutes === 0 ? 'たった今' : `${cacheAgeMinutes}分前`})
-              </span>
-            )}
           </p>
+          {cacheAgeMinutes !== null && (
+            <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+              最終更新: {cacheAgeMinutes === 0 ? 'たった今' : `${cacheAgeMinutes}分前`}
+            </p>
+          )}
         </div>
         <button
           onClick={refreshData}
