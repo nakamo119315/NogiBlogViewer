@@ -50,16 +50,16 @@ export function StatsPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-start justify-between">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 flex-1">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             統計情報
           </h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             全メンバーのブログ投稿統計
             {cacheAgeMinutes !== null && (
-              <span className="ml-2">
-                (最終更新: {cacheAgeMinutes === 0 ? 'たった今' : `${cacheAgeMinutes}分前`})
+              <span className="ml-1">
+                ({cacheAgeMinutes === 0 ? 'たった今' : `${cacheAgeMinutes}分前`})
               </span>
             )}
           </p>
@@ -67,7 +67,7 @@ export function StatsPage() {
         <button
           onClick={refreshData}
           disabled={isLoading}
-          className="flex items-center gap-1.5 rounded-lg bg-nogi-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-nogi-600 disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-nogi-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-nogi-600 disabled:opacity-50 sm:w-auto"
         >
           <svg
             className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`}
