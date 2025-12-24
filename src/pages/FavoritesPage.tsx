@@ -2,58 +2,44 @@
  * FavoritesPage - displays favorited members and their blogs
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { MemberCard } from '../components/member/MemberCard'
 import { BlogList } from '../components/blog/BlogList'
-import { useMemberData } from '../hooks/useMemberData'
+import { useDataCache } from '../store/DataContext'
 import { useFavorites } from '../hooks/useFavorites'
 import { useCommentHistory } from '../hooks/useCommentHistory'
 import { Loading } from '../components/common/Loading'
-import { fetchBlogs } from '../services/blogService'
-import type { BlogPost } from '../types/api'
 
 type TabType = 'members' | 'blogs'
 
 export function FavoritesPage() {
   const [activeTab, setActiveTab] = useState<TabType>('blogs')
-  const [blogs, setBlogs] = useState<BlogPost[]>([])
-  const [isLoadingBlogs, setIsLoadingBlogs] = useState(false)
 
-  const { members, isLoading: isMembersLoading } = useMemberData()
+  const { members, blogs: allBlogs, isLoading, hasFetched, fetchData } = useDataCache()
   const { favoriteIds, toggleFavorite } = useFavorites()
   const { commentedPostIds } = useCommentHistory()
 
-  // Filter to only show favorites
-  const favoriteMembers = members.filter((m) => favoriteIds.includes(m.code))
-
-  // Load blogs from favorite members
+  // Fetch data on first mount (only if not already fetched)
   useEffect(() => {
-    if (favoriteIds.length === 0) {
-      setBlogs([])
-      return
+    if (!hasFetched) {
+      fetchData()
     }
+  }, [hasFetched, fetchData])
 
-    const loadBlogs = async () => {
-      setIsLoadingBlogs(true)
-      try {
-        // Fetch latest blogs and filter by favorite members
-        const allBlogs = await fetchBlogs({ count: 100 })
-        const filteredBlogs = allBlogs.filter((blog) =>
-          favoriteIds.includes(blog.memberId)
-        )
-        setBlogs(filteredBlogs)
-      } catch (error) {
-        console.error('Failed to load blogs:', error)
-      } finally {
-        setIsLoadingBlogs(false)
-      }
-    }
+  // Filter to only show favorites
+  const favoriteMembers = useMemo(
+    () => members.filter((m) => favoriteIds.includes(m.code)),
+    [members, favoriteIds]
+  )
 
-    loadBlogs()
-  }, [favoriteIds])
+  // Filter blogs by favorite members (use cached blogs)
+  const blogs = useMemo(
+    () => allBlogs.filter((blog) => favoriteIds.includes(blog.memberId)),
+    [allBlogs, favoriteIds]
+  )
 
-  if (isMembersLoading) {
+  if (isLoading && !hasFetched) {
     return <Loading text="読み込み中..." />
   }
 
@@ -141,11 +127,11 @@ export function FavoritesPage() {
         <div>
           <BlogList
             blogs={blogs}
-            isLoading={isLoadingBlogs}
+            isLoading={isLoading && !hasFetched}
             commentedPostIds={commentedPostIds}
             showMemberInfo={true}
           />
-          {!isLoadingBlogs && blogs.length === 0 && (
+          {hasFetched && blogs.length === 0 && (
             <div className="py-12 text-center">
               <p className="text-gray-500 dark:text-gray-400">
                 お気に入りメンバーのブログがありません

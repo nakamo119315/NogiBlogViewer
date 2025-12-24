@@ -7,8 +7,8 @@ import { useParams, Link } from 'react-router-dom'
 import { BlogList } from '../components/blog/BlogList'
 import { BlogStatistics } from '../components/blog/BlogStatistics'
 import { DateRangeFilter } from '../components/blog/DateRangeFilter'
+import { useDataCache } from '../store/DataContext'
 import { useBlogData } from '../hooks/useBlogData'
-import { useMember } from '../hooks/useMemberData'
 import { useCommentHistory } from '../hooks/useCommentHistory'
 import { useMemberVisitHistory } from '../hooks/useMemberVisitHistory'
 import { useDateFilter } from '../hooks/useDateFilter'
@@ -18,7 +18,21 @@ import { useAppContext } from '../store/AppContext'
 
 export function MemberPage() {
   const { memberId } = useParams<{ memberId: string }>()
-  const { member, isLoading: isMemberLoading } = useMember(memberId)
+
+  // Use cached member data
+  const { members, hasFetched: hasCachedData, fetchData: fetchCacheData } = useDataCache()
+  const member = useMemo(
+    () => members.find((m) => m.code === memberId) ?? null,
+    [members, memberId]
+  )
+
+  // Fetch cache if not already fetched
+  useEffect(() => {
+    if (!hasCachedData) {
+      fetchCacheData()
+    }
+  }, [hasCachedData, fetchCacheData])
+
   const {
     blogs,
     isLoading: isBlogsLoading,
@@ -64,7 +78,7 @@ export function MemberPage() {
     ? preferences.favoriteMembers.includes(member.code)
     : false
 
-  if (isMemberLoading) {
+  if (!hasCachedData && !member) {
     return <Loading text="メンバー情報を読み込み中..." />
   }
 

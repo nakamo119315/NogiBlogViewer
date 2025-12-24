@@ -2,13 +2,24 @@
  * HomePage - メンバー一覧を表示するホームページ
  */
 
+import { useEffect } from 'react'
 import { MemberList } from '../components/member/MemberList'
-import { useMemberData } from '../hooks/useMemberData'
+import { useDataCache } from '../store/DataContext'
 import { useAppContext } from '../store/AppContext'
 
 export function HomePage() {
-  const { members, isLoading, generations } = useMemberData()
+  const { members, generations, isLoading, hasFetched, fetchData } = useDataCache()
   const { preferences, toggleFavorite, toggleShowOnlyFavorites } = useAppContext()
+
+  // Fetch data on first mount (only if not already fetched)
+  useEffect(() => {
+    if (!hasFetched) {
+      fetchData()
+    }
+  }, [hasFetched, fetchData])
+
+  // Filter out graduated members for display
+  const activeMembers = members.filter((m) => !m.isGraduated)
 
   return (
     <div className="space-y-6">
@@ -24,8 +35,8 @@ export function HomePage() {
 
       {/* Member List */}
       <MemberList
-        members={members}
-        isLoading={isLoading}
+        members={activeMembers}
+        isLoading={isLoading && !hasFetched}
         generations={generations}
         favoriteIds={preferences.favoriteMembers}
         showFavoritesOnly={preferences.showOnlyFavorites}
