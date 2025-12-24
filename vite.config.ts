@@ -17,8 +17,8 @@ export default defineConfig({
         theme_color: '#7c3aed',
         background_color: '#ffffff',
         display: 'standalone',
-        start_url: '/NogiBlogViewer/',
-        scope: '/NogiBlogViewer/',
+        start_url: '/',
+        scope: '/',
         icons: [
           {
             src: 'icon-192.png',
@@ -72,5 +72,5 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
-  base: '/NogiBlogViewer/',
+  base: '/',
 })
